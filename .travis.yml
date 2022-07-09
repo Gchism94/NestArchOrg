@@ -1,7 +1,6 @@
 # Build our Docker container and R pkg on Travis
 
 language: r
-sudo: required
 cache: packages
 
 os:

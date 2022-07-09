@@ -44,49 +44,49 @@ pacman::p_load(assertthat,
 
 # WORKERS
 # High nest density
-FullDataCoordWorkers <- read.csv(here("Data", "RawData", "FullDataCoordWorkers.csv"))
+FullDataCoordWorkers <- read.csv(here("data", "RawData", "FullDataCoordWorkers.csv"))
 
 # Low nest density
-FullDataCoordWorkersRD2 <- read.csv(here("Data", "RawData", "FullDataCoordWorkersRD2.csv"))
+FullDataCoordWorkersRD2 <- read.csv(here("data", "RawData", "FullDataCoordWorkersRD2.csv"))
 
 # BROOD
 # High nest density
-FullDataCoordBrood <- read.csv(here("Data", "RawData", "FullDataCoordBrood.csv"))
+FullDataCoordBrood <- read.csv(here("data", "RawData", "FullDataCoordBrood.csv"))
 
 # Low nest density
-FullDataCoordBroodRD2 <- read.csv(here("Data", "RawData", "FullDataCoordBroodRD2.csv"))
+FullDataCoordBroodRD2 <- read.csv(here("data", "RawData", "FullDataCoordBroodRD2.csv"))
 
 # QUEENS
 # High nest density
-FullDataCoordQueen <- read.csv(here("Data", "RawData", "FullDataCoordQueen.csv"))
+FullDataCoordQueen <- read.csv(here("data", "RawData", "FullDataCoordQueen.csv"))
 
 # Low nest density
-FullDataCoordQueenRD2 <- read.csv(here("Data", "RawData", "FullDataCoordQueenRD2.csv"))
+FullDataCoordQueenRD2 <- read.csv(here("data", "RawData", "FullDataCoordQueenRD2.csv"))
 
 # ALATES
 # Low nest density
-FullDataCoordAlate <- read.csv(here("Data", "RawData", "FullDataCoordAlate.csv"))
+FullDataCoordAlate <- read.csv(here("data", "RawData", "FullDataCoordAlate.csv"))
 
 # NETLOGO 
-ArchitectureMoveModelFull <- read.csv(here("Data", "RawData", "ArchitectureMoveModelFull.csv"))
+ArchitectureMoveModelFull <- read.csv(here("data", "RawData", "ArchitectureMoveModelFull.csv"))
 
 # NULL BINS REFERENCE (EMPIRICAL)
-BinsNullFull <- read.csv(here("Data", "RefData", "BinsNullFull.csv"))
+BinsNullFull <- read.csv(here("data", "RefData", "BinsNullFull.csv"))
 
 # NULL BINS REFERENCE (NETLOGO SIMULATIONS)
-BinsNullNetlogo <- read.csv(here("Data", "RefData", "BinsNullNetlogo.csv"))
+BinsNullNetlogo <- read.csv(here("data", "RefData", "BinsNullNetlogo.csv"))
 
 # BIN REFERENCE COORDINATES (EMPIRICAL)
-BinCoordFull <- read.csv(here("Data", "RefData", "BinCoordFull.csv"))
+BinCoordFull <- read.csv(here("data", "RefData", "BinCoordFull.csv"))
 
 # BIN REFERENCE COORDINATES (NETLOGO SIMULATIONS)
-BinCoordNetlogo <- read.csv(here("Data", "RefData", "BinCoordNetlogo.csv"))
+BinCoordNetlogo <- read.csv(here("data", "RefData", "BinCoordNetlogo.csv"))
 
 # REFERENCE COORDINATES FOR CORNERS (EMPIRICAL)
-CornerFull <- read.csv(here("Data", "RefData", "CornerFull.csv"))
+CornerFull <- read.csv(here("data", "RefData", "CornerFull.csv"))
 
 # REFERENCE COORDINATES FOR CORNERS (NETLOGO SIMULATIONS)
-CornerFullSim <- read.csv(here("Data", "RefData", "CornerFullSim.csv"))
+CornerFullSim <- read.csv(here("data", "RefData", "CornerFullSim.csv"))
 
 ####################################################################################################################
 # EMPIRICAL DATA PROCESSING 

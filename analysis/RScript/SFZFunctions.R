@@ -17,13 +17,13 @@
 ####################################################################################################################
 
 # COLOR REFRENCE DATA SET
-ColorRefFull <- read.csv(here("Data", "RefData", "ColorRefFull.csv"))
+ColorRefFull <- read.csv(here("data", "RefData", "ColorRefFull.csv"))
 
 # NEST AREA REFERENCES
-NestAreaFull <- read.csv(here("Data", "RefData", "NestAreaFull.csv"))
+NestAreaFull <- read.csv(here("data", "RefData", "NestAreaFull.csv"))
 
 # SCALING REFERENCE DATA SET FOR CIRCLE NESTS (BASICALLY COLONY SIZE)
-ScalingCircleSFZ <- read.csv(here("Data", "RefData", "ScalingCircleSFZ.csv"))
+ScalingCircleSFZ <- read.csv(here("data", "RefData", "ScalingCircleSFZ.csv"))
 
 ####################################################################################################################
 # CORRECTING COLOR COORDINATES

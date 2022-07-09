@@ -19,10 +19,10 @@
 ####################################################################################################################
 
 # DISTANCE TO NEST ENTRANCE (EMPIRICAL) REFERENCES
-DistBinsFull <- read.csv(here("Data", "RefData", "DistBinsFull.csv"))
+DistBinsFull <- read.csv(here("data", "RefData", "DistBinsFull.csv"))
 
 # DISTANCE TO NEST ENTRANCE (NETLOGO SIMULATIONS) REFERENCES
-DistBinsFullNetlogo <- read.csv(here("Data", "RefData", "DistBinsFullNetlogo.csv"))
+DistBinsFullNetlogo <- read.csv(here("data", "RefData", "DistBinsFullNetlogo.csv"))
 
 ####################################################################################################################
 ## DISTANCE TO THE NEST ENTRANCE

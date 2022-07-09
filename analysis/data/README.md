@@ -1,4 +1,4 @@
-# README for Nest shape influences colony organization in ants: spatial distribution and connectedness of colony members differs from that predicted by random movement and is affected by available space
+# README for Nest shape influences colony organization in ants: colony spatial distribution differs from random movement
 
 ***
 

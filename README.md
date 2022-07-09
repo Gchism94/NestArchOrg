@@ -1,7 +1,7 @@
 # NestArchOrg compendium
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Gchism94/NestArchOrg/HEAD)
-[![Build Status](https://travis-ci.org/cboettig/noise-phenomena.svg?branch=master)](https://travis-ci.org/cboettig/noise-phenomena)
+[![Build Status](https://app.travis-ci.com/Gchism94/NestArchOrg.svg?branch=main)](https://travis-ci.org/Gchism94/NestArchOrg)
 [![DOI](https://zenodo.org/badge/94135460.svg)](https://doi.org/10.5281/zenodo.6784395)
 
 A compendium of code, data, and author's manuscript accompanying the publication:

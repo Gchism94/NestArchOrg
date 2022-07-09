@@ -1,18 +1,18 @@
 Package: NestArchOrg
-Title: Research compendium for the project "
+Title: "Research compendium for the project"
 Version: 0.0.0.9000
 Authors@R:
-    person("Greg", "Chism", "gchism@arizona.edu", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: MIT + file LICENSE
+    person("Greg", "Chism", "gchism@arizona.edu", role = c("main", "aut", "cre"))
+Maintainer: Greg Chism <gchism@arizona.edu> 
+Description: Research comdendium for the project: Nest shape influences colony organization in ants: colony spatial distribution differs from random movement
+License: GPLv3 + file LICENSE
 ByteCompile: true
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 Imports: bookdown,
-    here,
-    pacman
+    here
 Suggests: 
     devtools,
     git2r,

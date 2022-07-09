@@ -2,7 +2,7 @@
 
 [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/cboettig/noise-phenomena/master?urlpath=rstudio)
 [![Build Status](https://travis-ci.org/cboettig/noise-phenomena.svg?branch=master)](https://travis-ci.org/cboettig/noise-phenomena)
-[![DOI](https://zenodo.org/badge/94135460.svg)](https://zenodo.org/badge/latestdoi/94135460)
+[![DOI](https://zenodo.org/badge/94135460.svg)](https://doi.org/10.5281/zenodo.6784395)
 
 A compendium of code, data, and author's manuscript accompanying the publication:
 

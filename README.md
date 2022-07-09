@@ -20,15 +20,20 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
     ├── paper/
     │   ├── paper.Rmd       # this is the main document to edit
     │   └── paper.pdf       # this is an elsevier .pdf written from paper.Rmd
-    
+    |
     ├── figures/            # location of the figures produced by the scripts in R
     |
     ├── data/
     │   ├── RawData/        # data obtained from elsewhere
-    │   ├── RefData/        # data used to obtain final data and during the analysis
-    |   └── 
+    │   └── RefData/        # data used to obtain final data and during the analysis
+    |   
+    ├── supplementary-materials/
+    │   ├── Supplementary_Figures/     
+    |   |                   # supplementary figures for the main manuscript
+    │   └── Supplementary_Tables/      
+    |                       # supplementary tables for the main manuscript 
     |
-    └── templates
+    └── R
         ├── journal-of-archaeological-science.csl
         |                   # this sets the style of citations & reference list
         ├── template.docx   # used to style the output of the paper.Rmd

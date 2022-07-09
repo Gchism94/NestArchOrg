@@ -4,6 +4,7 @@
 [![.github/workflows/docker-hub.yml](https://github.com/Gchism/NestArchOrg/actions/workflows/docker-hub.yml/badge.svg)] (https://github.com/Gchism94/NestArchOrg/actions/workflows/docker-hub.yml)
 [![Build Status](https://app.travis-ci.com/Gchism94/NestArchOrg.svg?branch=main)](https://travis-ci.org/Gchism94/NestArchOrg)
 [![DOI](https://zenodo.org/badge/94135460.svg)](https://doi.org/10.5281/zenodo.6784395)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 A compendium of code, data, and author's manuscript accompanying the publication:
 

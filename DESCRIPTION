@@ -1,5 +1,5 @@
 Package: NestArchOrg
-Title: What the Package Does (One Line, Title Case)
+Title: Research compendium for the project "
 Version: 0.0.0.9000
 Authors@R:
     person("Greg", "Chism", "gchism@arizona.edu", role = c("aut", "cre"))

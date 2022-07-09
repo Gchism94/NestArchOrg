@@ -2,7 +2,7 @@
 
 env:
   global:
-  - REPO=$DOCKER_USER/NestArchOrg
+  - REPO=$DOCKER_USER/nestarchorg
 
 sudo: required
 

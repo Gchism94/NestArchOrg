@@ -9,7 +9,7 @@ os:
 
 env:
   global:
-  - REPO=$DOCKER_USER/NestArchOrg
+  - REPO=$DOCKER_USER/nestarchorg
 
 warnings_are_errors: false
 
@@ -21,7 +21,7 @@ after_success:
   - docker build -t $REPO .
   # push our custom docker container to docker hub, env vars stored on travis-ci.org
   - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-  - export REPO=$DOCKER_USER/NestArchOrg
+  - export REPO=$DOCKER_USER/nestarchorg
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - docker build -f Dockerfile -t $REPO:$COMMIT .
   - docker tag $REPO:$COMMIT $REPO:$TAG

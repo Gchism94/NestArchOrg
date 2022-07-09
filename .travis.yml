@@ -6,7 +6,7 @@ env:
 
 warnings_are_errors: false
 
-language: generic
+language: r
 
 services:
   - docker

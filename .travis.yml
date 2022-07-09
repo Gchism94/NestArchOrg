@@ -20,7 +20,7 @@ after_success:
   # create & run container using our dockerfile, i.e. compile pkg and render Rmd to Word doc
   - docker build -t $REPO .
   # push our custom docker container to docker hub, env vars stored on travis-ci.org
-  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_TOKEN
   - export REPO=$DOCKER_USER/nestarchorg
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - docker build -f Dockerfile -t $REPO:$COMMIT .

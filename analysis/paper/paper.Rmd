@@ -93,7 +93,7 @@ ___Experimental setup___
 We used two nest types, a circle, and a tube-shaped nest, for the experimental phase (Fig. 1). We gave colonies comparable nest densities by scaling the internal area of the nest cavities to colony size (number of workers). We examined the size of a _Temnothorax rugatulus_ colony that utilized nearly all of the available nest space in a pre-experimental nest (248 workers, Appendix, Fig. A1) and doubled the area per worker to permit flexible nest space use (0.033 mm2 per worker) - we termed this the high worker density treatment. We further produced a low worker density treatment by doubling the nest area allocated to each worker compared to that first treatment, producing a density half as dense as the high-density treatment (0.066 mm2 per worker). These density treatments could result in nature from nest competition: colonies prefer nests that allow lower worker densities (Visscher 2007), but high nest competition could result in populations occupying nests with overall higher density; whereas low nest competition could allow colonies to occupy their preferred nests. 
  
 ```{r out.width="75%", out.height="20%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig1.jpg")
+knitr::include_graphics("figures/Fig1.jpg")
 ```
 __Figure 1__. Nest shapes used for this study, a circle (a) and tube (b) nest. 
 
@@ -233,7 +233,7 @@ _Nest shape influenced how colony members were distributed across the nest_
 Broadly, all types of colony members (i.e. workers, brood, queens, and alates) were distributed differently in the two nest shapes (Fig. 2). 
 
 ```{r out.width="90%", out.height="55%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig2.jpg")
+knitr::include_graphics("figures/Fig2.jpg")
 ```
 __Figure 2__.  Illustration of colony distribution in nests for one example colony (no. 11). Shown are the distributions of workers (top-left), brood and queens (top-right, queens are red triangles), alates (bottom-left), and the low density Netlogo random walk simulated workers (bottom-right). Distributions in circle nests are on the left and the tube nest on the right. Each point is colored by the number of k-nearest neighbors (KNN) within a radius that's standardized by the data range (indicated by respective legends below each sub-figure). Colony 11 was selected to illustrate all colony members since not all colonies possess alates. The scatter plot grid for every colony, and respective Netlogo simulation, can be found as Appendix, Figs. 12-31.
 
@@ -242,13 +242,13 @@ __Figure 2__.  Illustration of colony distribution in nests for one example colo
 Workers and brood were found in nest sections closer to the entrance, in relative terms, in the tube nest than in the circle nest (Workers: $\beta$ + SE = 0.003 + 0.001, t~3178~ = 4.334, _P_ < 0.001; Fig. 3, Appendix, Table A1), (Brood: $\beta$ + SE = -0.008 + 0.001, t~3170~ = -6.122, _P_ < 0.001; Figs. 4a-b, Appendix, Table A2), but this was not seen in queens ($\beta$ + SE = -0.004 + 0.003, t~3178~ = -1.403, _P_ = 0.161, Figs. 4c-d, Appendix, Table A3) or alates ($\beta$ + SE = -0.001 + 0.004, t~448~ = -0.150, _P_ = 0.881; Fig. 4e, Appendix, Table A4). However, both queens (Appendix, Table A3) and alates (Appendix, Table A4) were not evenly distributed in either nest shape. All colony member distributions across nest sections were therefore different between the two nest shapes, suggesting that colonies have an occupation strategy different than evenly distributing across nest space. 
 
 ```{r out.width="80%", out.height="60%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig3.jpg")
+knitr::include_graphics("figures/Fig3.jpg")
 ```
 
 __Figure 3__. Workers tend to be clustered near the entrance in both nest types, but this is more pronounced in the tube nest: shown here are the worker (‘Obsv’, solid colors) and Netlogo simulated random walk result (‘RandWalk’, white) proportions of workers in each nest section of the tube (a, b; red) and circle (c, d; blue) nests (each section has the same area across both nest types, but is scaled with colony size). These figures also show the high (a, c) and low (b, d) nest density treatment. Here, and in all following boxplots, boxes represent first and third quartiles (75% of the data), the bar within boxes is the median, and whiskers are the data range. Sample size was 3192 worker proportions in nest sections across 20 colonies.
 
 ```{r out.width="70%", out.height="95%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig4.jpg")
+knitr::include_graphics("figures/Fig4.jpg")
 ```
 __Figure 4__. Brood and queens, but not alates, are generally found further from the entrance than workers in both nest types shown here are the difference in brood (a, b), queen (c, d) and alate (e) proportions across tube (red) and circle (blue) nest sections. The brood and queen densities are represented in both the high (a, c) and low (b, d) nest density treatments. Note that here, and below, alates were only present in the low nest density treatment. Sample sizes for colony members in nest sections: brood = 3184, queen = 3192, alates = 456. 
 
@@ -279,7 +279,7 @@ _Nest shape affected mobile colony member distance to the brood center_
 All mobile colony members, i.e. workers, queens, and alates, were also farther from the brood center in the tube nest shape: (Workers: $\beta$ + SE = 0.103 + 0.002, t~26669.530~ = 45.530, _P_ < 0.001; Figs. 7a-b, Appendix, Table A9), (Queens: $\beta$ + SE = 0.090 + 0.011, t~1067.062~ = 8.143, _P_ < 0.001; Figs. 7c-d; Appendix, Table A10), (Alates: $\beta$ + SE = 0.211 + 0.018, t~2.895~ = 11.672, _P_ = 0.002; Fig. 7e, Appendix, Table A11). We also found that male alates were found farther from the brood center than queen alates (Appendix, Table A11). We lastly found that mobile colony member distances to the brood center did not change over the course of the experiment (Appendix, Tables A9-11). Therefore, nest shapes that elongate nest space (e.g. like our tube nest) likely force mobile colony members to distances farther from the brood center.  
 
 ```{r out.width="70%", out.height="95%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig5.jpg")
+knitr::include_graphics("figures/Fig5.jpg")
 ```
 __Figure 5__. Worker and queen distributions center near the center of the brood distribution; but in the tube nest, the distances of both from the brood center are much larger. The peak of alate distributions is away from the brood center. Shown on the x-axis are the actual distances from the brood center (see Methods), scaled only by setting the farthest point of the tube nest as a distance of 1 (instead of dividing the nest into sections as in Figs. 3-4). This implies that distances given here are also scaled with colony size. Panels show workers (a, b), queens (c, d), and alates (e, f). The difference between male and female alates is shown in (f), denoted by letters A for females and B for males. Differences in distributions are additionally shown across high (a, c) and low (b, d) nest densities. Sample sizes for colony member distances from the brood center: workers = 26733, queens = 1080, alates = 676. 
 
@@ -310,7 +310,7 @@ _Scaled worker site fidelity was influenced by neither nest shape nor nest densi
 Nest shape did not influence worker spatial fidelity zone size as measured in nest sections ( $\beta$ + SE = -0.145 + 0.146, t~378.727~ = -0.994, _P_ = 0.321; Figs. 8a-b, Appendix, Table A12) or occurrence zone size in this measurement ($\beta$ + SE = -0.080 + 0.214, t~378.858~ = -0.372, _P_ = 0.710; Figs. 8b-c, Appendix, Table A13), nor did nest density (Fidelity zones: $\beta$ + SE = -0.320 + 0.159, t~14.107~ = -2.010, _P_ = 0.064, Appendix, Tables A12) (Occurrence zones: $\beta$ + SE = 0.282 + 0.248, t~19.358~ = 1.137, _P_ = 0.270, Appendix, Tables A13). Therefore, ant workers appear to be able to maintain the same site fidelity regardless of nest shape. 
 
 ```{r out.width="70%", out.height="50%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig6.jpg")
+knitr::include_graphics("figures/Fig6.jpg")
 ```
 __Figure 6__. Comparison of worker fidelity and occurrence zones sizes (cm2) in the circle (blue) and tube (red) nests for both the high (a, c) and low (b, d) nest density treatments. Fidelity zone sizes are the same in each nest shape ($\beta$ + SE = -0.022 + 0.044, t~377.968~  = -0.494, _P_ = 0.622, Appendix, Table A14) and across density treatments ($\beta$ + SE = 0.148 + 0.082, t~19.161~ = 1.799, _P_ = 0.088, Appendix, Table A14). Occurrence zone sizes are the same in each nest shape ($\beta$ + SE = -0.023 + 0.071, t~366.580~ = -0.324, _P_ = 0.746, Appendix, Table A15) but are larger in lower nest density ($\beta$ + SE = 0.808 + 0.337, t~16.682~  = 2.398, _P_ = 0.029, Appendix, Table A15). Histograms represent the data distribution; boxplots are the first and third quartiles where the black bar is the median and the whiskers extend to the data range. Please see the methods for details on how scaled worker fidelity and occurrence zone size calculations, which here were multiplied by the total area of the nest to achieve unscaled zone sizes. The sample size was 383 marked ants across 19 colonies.
 
@@ -323,7 +323,7 @@ The model variation explained (notably small) by the random effect ColonyID was 
 <p>&nbsp;</p>
 
 ```{r out.width="70%", out.height="50%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig7.jpg")
+knitr::include_graphics("figures/Fig7.jpg")
 ```
 __Figure 7__. Relationship between true worker fidelity and occurrence zones sizes (cm2) and colony size in the circle (blue) and tube (red) nests for both the high (a, c) and low (b, d) nest density treatments. Points are jittered on the x and y axis. Lines show significant linear relationships, but note that the relationships in (a, c) and (b, d) are not significantly different (Appendix, Tables A16-17). The sample size was 383 marked ants across 19 colonies.
 
@@ -342,7 +342,7 @@ _Distance to the brood center did not influence spatial fidelity zones_
 There was no relationship between worker spatial fidelity zones and distance from the brood center ($\beta$ + SE = 1.517 + 4.715, t~360.029~ = 0.322, _P_ = 0.748; Figs. 8a-b, Appendix, Table A20), but occurrence zones had an inconsistent relationship both across nest shapes and nest densities ($\beta$ + SE = 18.951 + 6.889, t~374.920~ = 2.751, _P_ = 0.006; Figs. 8c-d, Appendix, Table A21). We therefore do not find that workers in different areas of the nest have differently sized spatial fidelity zones. 
 
 ```{r out.width="70%", out.height="50%", echo=FALSE, fig.align = 'left'}
-knitr::include_graphics("Figures/Fig8.jpg")
+knitr::include_graphics("figures/Fig8.jpg")
 ```
 __Figure 8__. The relationship between scaled individual worker fidelity (a, b) and occurrence (c, d) zone sizes (scaled relative to total nest size, which was related to colony size) and average scaled distance to the brood pile in the circle (blue circles, solid lines) and tube (red triangles, dashed lines) nest shapes. Lines represent significant linear relationships. These differences are additionally compared across the high (a, c) and low (b, d) nest density treatments. There were no significant differences in any scaled zone sizes across nest shapes or density treatments (Appendix, Tables A20-21). The sample size was 383 marked ants across 19 colonies. 
 

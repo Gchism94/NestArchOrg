@@ -1,33 +1,23 @@
 # Build our Docker container and R pkg on Travis
 
-language: r
-
-os:
-  - linux
-  
- dist: 
-  - xenial
-
 env:
   global:
   - REPO=$DOCKER_USER/nestarchorg
+
+warnings_are_errors: false
+
+language: generic
 
 services:
   - docker
 
 before_install:
-  - echo "Testing Docker Hub credentials"
-  - docker login -e=$DOCKER_EMAIL -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
-  - echo "Docker Hub credentials are working"
-  - docker build -t build-springxd-base .
+    # create & run container using our dockerfile, i.e. compile pkg and render Rmd to Word doc
+  - docker build -t $REPO .
 
-script:
-  - docker ps -a
-
+# push our custom docker container to docker hub, env vars stored on travis-ci.org
 after_success:
-  - echo "Test Success - Branch($TRAVIS_BRANCH) Pull Request($TRAVIS_PULL_REQUEST) Tag($TRAVIS_TAG)"
-  - if [[ "$TRAVIS_BRANCH" == "master" ]]; then echo -e "Push Container to Docker Hub"; fi
-  - docker login -e=$DOCKER_EMAIL -u=$DOCKER_USERNAME -p=$DOCKER_PASSWORD
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS
   - export REPO=$DOCKER_USER/nestarchorg
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - docker build -f Dockerfile -t $REPO:$COMMIT .

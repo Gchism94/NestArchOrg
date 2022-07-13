@@ -9,6 +9,9 @@ A compendium of code, data, and author's manuscript accompanying the preprint:
 
 #### Greg Chism, [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-5478-2445). *Nest shape influences colony organization in ants: colony spatial distribution differs from random movement*. Preprint on *bioRxiv*, 02 July 2022 <https://doi.org/10.1101/2022.06.30.498314>
 
+To cite this repository use the following: 
+
+Chism, G., Nichols, W., & Dornhaus, A. (2022). NestArchOrg (Version 1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.6828919
 
 ## Overview
 This repository is organized as a reproducible research compendium. 

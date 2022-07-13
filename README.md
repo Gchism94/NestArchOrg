@@ -2,8 +2,7 @@
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Gchism94/NestArchOrg/HEAD)
 [![.github/workflows/run-on-docker.yml](https://github.com/Gchism94/NestArchOrg/actions/workflows/run-on-docker.yml/badge.svg)](https://github.com/Gchism94/NestArchOrg/actions/workflows/run-on-docker.yml)
-[![Build Status](https://app.travis-ci.com/Gchism94/NestArchOrg.svg?branch=main)](https://travis-ci.org/Gchism94/NestArchOrg)
-[![DOI](https://zenodo.org/badge/94135460.svg)](https://doi.org/10.5281/zenodo.6784395)
+[![DOI](https://zenodo.org/badge/511707834.svg)](https://zenodo.org/badge/latestdoi/511707834)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 A compendium of code, data, and author's manuscript accompanying the publication:
@@ -13,7 +12,7 @@ A compendium of code, data, and author's manuscript accompanying the publication
 ## Overview
 
 This repository is organized as a reproducible research compendium. 
-Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/cboettig/noise-phenomena/master?urlpath=rstudio) button above to explore in an interactive RStudio session.   Binder uses [rocker-project.org](https://rocker-project.org) Docker images to ensure a consistent and reproducible computational environment.  These Docker images can also be used locally.  
+Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/cboettig/noise-phenomena/master?urlpath=rstudio) button above to explore in an interactive RStudio session.  Binder uses [rocker-project.org](https://rocker-project.org) Docker images to ensure a consistent and reproducible computational environment.  These Docker images can also be used locally.  
 
 ## File Organization
 
@@ -53,4 +52,5 @@ README.md files are included in all subdirectories with explanations or contents
 Or to explore the code locally, clone or download this repository into RStudio or your preferred environment and install the compendium by running `devtools::install()`.  To install additional dependencies used only in formatting the figures, use `devtools::install(dep=TRUE)`.  
 
 
-This compendium is checked by Travis-CI continuous integration.  Click the [![Build Status](https://travis-ci.org/cboettig/noise-phenomena.svg?branch=master)](https://travis-ci.org/cboettig/noise-phenomena) button for details.
+This compendium includes data found on the Zenodo repository: 
+[![DOI](https://zenodo.org/badge/94135460.svg)](https://doi.org/10.5281/zenodo.6784395)

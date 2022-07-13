@@ -9,8 +9,8 @@ A compendium of code, data, and author's manuscript accompanying the publication
 
 #### Greg Chism, [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-5478-2445). *Nest shape influences colony organization in ants: colony spatial distribution differs from random movement*. Preprint on *bioRxiv*, 02 July 2022 <https://doi.org/10.1101/2022.06.30.498314>
 
-## Overview
 
+## Overview
 This repository is organized as a reproducible research compendium. 
 Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/cboettig/noise-phenomena/master?urlpath=rstudio) button above to explore in an interactive RStudio session.  Binder uses [rocker-project.org](https://rocker-project.org) Docker images to ensure a consistent and reproducible computational environment.  These Docker images can also be used locally.  
 

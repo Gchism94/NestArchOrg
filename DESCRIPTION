@@ -13,25 +13,7 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 Imports: bookdown,
-    here,
-    assertthat,
-    cowplot,
-    forcats,
-    formattable,
-    ggExtra,
-    ggdist,
-    ggpointdensity,
-    ggpubr,
-    ggthemes,
-    lme4,
-    lmerTest,
-    magrittr,
-    MuMIn,
-    RColorBrewer,
-    scales,
-    tidyverse,
-    twosamples,
-    viridis
+    here
 Suggests: 
     devtools,
     git2r,

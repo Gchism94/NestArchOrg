@@ -199,9 +199,7 @@ _Simulations_: We produced 1000 simulations for the four nest types (small circl
 
 ___Data processing___
 
-We conducted all data processing using the statistical software R (v4.1.1; R Core Team 2017) and RStudio (v1.2.5042; Allaire 2012), specifically the Tidyverse language (‘tidyverse’ v1.3.1: Wickham et al., 2019). All original data and analysis scripts are publicly available on Github: 
-
-https://github.com/Gchism94/Nest_Arch_ColonyOrganization.
+We conducted all data processing using the statistical software R (v4.1.1; R Core Team 2017) and RStudio (v1.2.5042; Allaire 2012), specifically the Tidyverse language (‘tidyverse’ v1.3.1: Wickham et al., 2019). All original data and analysis scripts are publicly available on GitHub (Chism et al., 2022, GitHub repository, https://github.com/Gchism94/NestArchOrg).
 
 <p>&nbsp;</p>
 
@@ -431,6 +429,8 @@ Individual choice of building material for nest construction by worker ants and 
 &nbsp;&nbsp; Charbonneau, D., Poff, C., Nguyen, H., Shin, M. C., Kierstead, K., and Dornhaus, A. (2017). Who are the “lazy” ants? The function of inactivity in social insects and a possible role of constraint: inactive ants are corpulent and may be young and/or selfish. _Integrative and Comparative Biology_, _57_(3), 649-667. https://doi.org/10.1093/icb/icx029 
 
 &nbsp;&nbsp; Charbonneau, D., Sasaki, T., and Dornhaus, A. (2017). Who needs ‘lazy’ workers? Inactive workers act as a ‘reserve’ labor force replacing active workers, but inactive workers are not replaced when they are removed. _PLoS ONE_, 12(9), e0184074. https://doi.org/10.1371/journal.pone.0184074 
+
+&nbsp;&nbsp; Chism, G., Nichols, W., and Dornhaus, A. (2022). NestArchOrg (Version 1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.6828919 
 
 &nbsp;&nbsp; Davidson, J. D., and Gordon, D. M. (2017). Spatial organization and interactions of harvester ants during foraging activity. Journal of The Royal Society Interface, 14(135), 20170413. https://doi.org/10.1098/rsif.2017.0413 
 

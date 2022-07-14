@@ -1,4 +1,4 @@
 library(testthat)
-library(pkgname)
+library(NestArchOrg)
 
-test_check("pkgname")
+test_check("NestArchOrg")

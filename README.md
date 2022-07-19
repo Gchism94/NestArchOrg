@@ -9,6 +9,9 @@
 
 #### Greg Chism, [![](https://orcid.org/sites/default/files/images/orcid_16x16.png)](https://orcid.org/0000-0002-5478-2445). William Nichols, Anna Dornhaus, *Nest shape influences colony organization in ants: colony spatial distribution differs from random movement*. Preprint on *bioRxiv*, 02 July 2022 <https://doi.org/10.1101/2022.06.30.498314>
 
+This compendium includes data found on the Zenodo repository: 
+[![DOI](https://zenodo.org/badge/94135460.svg)](https://doi.org/10.5281/zenodo.6784395)
+
 ## To cite this repository use the following: 
 
 Chism, G., Nichols, W., & Dornhaus, A. (2022). NestArchOrg (Version 1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.6828919
@@ -54,6 +57,3 @@ README.md files are included in all subdirectories with explanations or contents
 
 Or to explore the code locally, clone or download this repository into RStudio or your preferred environment and install the compendium by running `devtools::install()`.  To install additional dependencies used only in formatting the figures, use `devtools::install(dep=TRUE)`.  
 
-
-This compendium includes data found on the Zenodo repository: 
-[![DOI](https://zenodo.org/badge/94135460.svg)](https://doi.org/10.5281/zenodo.6784395)

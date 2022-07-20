@@ -14,7 +14,7 @@ This compendium includes data found on the Zenodo repository:
 
 ## To cite this repository use the following: 
 
-Chism, G., Nichols, W., & Dornhaus, A. (2022). NestArchOrg (Version 1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.6828919
+> Chism, G., Nichols, W., & Dornhaus, A. (2022). NestArchOrg (Version 1.0.0) [Computer software]. https://doi.org/10.5281/zenodo.6828919
 
 ## Overview
 This repository is organized as a reproducible research compendium. 

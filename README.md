@@ -40,7 +40,7 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
     │   └── Supplementary_Tables/      
     |                       # supplementary tables for the main manuscript 
     |
-    └── R                   # Run in the following order (also see associated README.md
+    └── R                   # Run in the following order (also see associated README.md)
         ├── Stat_boxplot_custom.R
         |                   # Custom box plot function to extend the whiskers to full data range (0th and 100th percentiles)
         ├── Bins_Working.R  # R script used to bin raw x, y coordinates into nest sections

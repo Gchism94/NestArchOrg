@@ -31,23 +31,23 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
     ├── figures/            # location of the figures produced by the scripts in R
     |
     ├── data/
-    │   ├── RawData/        # data obtained from elsewhere
-    │   └── RefData/        # data used to obtain final data and during the analysis
+    │   ├── rawData/        # data obtained from elsewhere
+    │   └── refData/        # data used to obtain final data and during the analysis
     |   
     ├── supplementary-materials/
-    │   ├── Supplementary_Figures/     
+    │   ├── supplementaryFigures/     
     |   |                   # supplementary figures for the main manuscript
-    │   └── Supplementary_Tables/      
+    │   └── supplementaryTables/      
     |                       # supplementary tables for the main manuscript 
     |
     └── R                   # Run in the following order (also see associated README.md)
         ├── Stat_boxplot_custom.R
         |                   # Custom box plot function to extend the whiskers to full data range (0th and 100th percentiles)
-        ├── Bins_Working.R  # R script used to bin raw x, y coordinates into nest sections
-        ├── DistanceFunctions.R        
+        ├── binsWorking.R  # R script used to bin raw x, y coordinates into nest sections
+        ├── distanceFunctions.R        
         |                   # R script used to calculate distances in the nest from binned x, y coordinates
-        ├── SFZFunctions.R  # R script used to calculate site fidelity for binned marked worker x, y coordinates
-        └── NestArchFuncts.Analyses.R
+        ├── fidelityZonesFunctions.R  # R script used to calculate site fidelity for binned marked worker x, y coordinates
+        └── nestArchFuncts.Analyses.R
                             # R script used to produce all statistical analyses and figures
         
 

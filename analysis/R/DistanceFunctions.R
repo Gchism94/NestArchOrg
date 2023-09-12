@@ -1,29 +1,57 @@
 ####################################################################################################################
 ## Author: GREG CHISM
-## Date: APR 2022
-## email: gchism@arizona.edu
+## Date: September 2023
+## email: gchism94@gmail.com
 ## Project: Nest shape influences colony organization in ants: spatial distribution and connectedness of colony members differs from that predicted by random movement and is affected by available space
 ## Title: Distance functions 
 ####################################################################################################################
 
-# READ ME:
-# YOU MUST RUN THE FOLLOWING SCRIPT BEFORE THIS ONE: Bins_Working.R
+# READ ME: 
+# CODE BELOW READS IN PROCESSED DATA FROM THE FOLLOWING SCRIPTS:
+# binsWorking.R - Binning data and then calculating the proportions of each in the binned sections
 
 # These code is to replicate the data transformations for my first chapter:
 # Distance to the nest entrance: search for DISTANCE TO THE NEST ENTRANCE
 # Distance to the brood center: starts at CALCULATE THE BROOD CENTER 
+
+if (!require(pacman)) install.packages('pacman') # Download package with function to load multiple packaged at once
+####################################################################################################################
+# Loading required packages for code below  
+# p_load() will download packages that aren't in system library
+####################################################################################################################
+
+pacman::p_load(here,
+               tidyverse)
 
 ####################################################################################################################
 # IMPORT ALL NECESSARY DATASETS 
 # This code imports all necessary data sets for the script below
 ####################################################################################################################
 
+# PROCESSED DATASET FROM Bins_Working.R
+# Full workers dataset
+FullDataCoordWorkersRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkersRD1_RD2.csv"), row.names = FALSE)
+
+# Full workers dataset
+FullDataCoordBroodRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordBroodRD1_RD2.csv"), row.names = FALSE)
+
+# Full workers dataset
+FullDataCoordQueenRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordQueenRD1_RD2.csv"), row.names = FALSE)
+
+# Full workers dataset
+FullDataCoordAlates <- read.csv(here("analysis", "data", "processed", "FullDataCoordAlates.csv"), row.names = FALSE)
+
 # DISTANCE TO NEST ENTRANCE (EMPIRICAL) REFERENCES
-DistBinsFull <- read.csv(here("data", "RefData", "DistBinsFull.csv"))
+DistBinsFull <- read.csv(here("analysis", "data", "RefData", "DistBinsFull.csv"), row.names = FALSE)
 
-# DISTANCE TO NEST ENTRANCE (NETLOGO SIMULATIONS) REFERENCES
-DistBinsFullNetlogo <- read.csv(here("data", "RefData", "DistBinsFullNetlogo.csv"))
+# NULL BINS REFERENCE (EMPIRICAL)
+BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv"), row.names = FALSE)
 
+# BIN REFERENCE COORDINATES
+BinCoordFull <- read.csv(here("analysis", "data", "RefData", "BinCoordFull.csv"), row.names = FALSE)
+
+# REFERENCE COORDINATES FOR CORNERS (EMPIRICAL)
+CornerFull <- read.csv(here("analysis", "data", "RefData", "CornerFull.csv"), row.names = FALSE)
 ####################################################################################################################
 ## DISTANCE TO THE NEST ENTRANCE
 # The following scripts find each colony member's distance from the nest entrance 
@@ -336,6 +364,16 @@ DistanceCoordsFunctionRD2(FullDataCoordWorkersRD2)
 WorkerDistScaledRD1_RD2 <- full_join(WorkerDistScaled, WorkerDistScaledRD2) %>%
   mutate(WorkerType = "Worker")
 
+# Write dataset
+write.csv(WorkerDistScaled, here("analysis", "data", "processed", "WorkerDistScaled.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(WorkerDistScaledRD2, here("analysis", "data", "processed", "WorkerDistScaledRD2.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(WorkerDistScaledRD1_RD2, here("analysis", "data", "processed", "WorkerDistScaledRD1_RD2.csv"), row.names = FALSE)
+
+
 # BROOD
 # High density treatment
 DistanceCoordsFunctionBrood <- function(data.table) {
@@ -636,6 +674,15 @@ DistanceCoordsFunctionBroodRD2(FullDataCoordBroodRD2)
 
 # Join brood distance to the entrance data sets
 BroodDistScaledRD1_RD2 <- full_join(BroodDistScaled, BroodDistScaledRD2) 
+
+# Write dataset
+write.csv(BroodDistScaled, here("analysis", "data", "processed", "BroodDistScaled.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(BroodDistScaledRD2, here("analysis", "data", "processed", "BroodDistScaledRD2.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(BroodDistScaledRD1_RD2, here("analysis", "data", "processed", "BroodDistScaledRD1_RD2.csv"), row.names = FALSE)
 
 # QUEENS
 # High density treatment
@@ -938,6 +985,15 @@ DistanceCoordsFunctionQueenRD2(FullDataCoordQueenRD2)
 # Join queen distance data sets
 QueenDistScaledRD1_RD2 <- full_join(QueenDistScaled, QueenDistScaledRD2) 
 
+# Write dataset
+write.csv(QueenDistScaled, here("analysis", "data", "processed", "QueenDistScaled.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(QueenDistScaledRD2, here("analysis", "data", "processed", "QueenDistScaledRD2.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(QueenDistScaledRD1_RD2, here("analysis", "data", "processed", "QueenDistScaledRD1_RD2.csv"), row.names = FALSE)
+
 # ALATES
 # Alates are only in the Low density treatment
 DistanceCoordsFunctionAlate <- function(data.table) {
@@ -1087,153 +1143,8 @@ DistanceCoordsFunctionAlate <- function(data.table) {
 # Run the shortest distance from the bin function for the alate data set
 DistanceCoordsFunctionAlate(FullDataCoordAlates)
 
-# NETLOGO SIMULATIONS
-DistanceCoordsFunctionNetlogo <- function(data.table) {
-  Bin1 <- DistBinsFullNetlogo %>% # Bin 1 has corners that are ignored unless there is a way to make the shortest distance to the corner first, this code produces the reference coordinates for the corners
-    filter(Bin == 1) %>%
-    group_by(NestSize, Nest) %>%
-    mutate(BinX1 = BinX, LeftCorner = 3.65, RightCorner = 3.85) %>%
-    select(NestSize, Nest, BinX1, LeftCorner, RightCorner)
-  
-  Bin4 <- DistBinsFullNetlogo %>% # Bin 4 has two possible shortest distances, one on the right past the farthest x coordinate of bin 3, and one to the left
-    filter(Nest == "Tube" & Bin == 3) %>% 
-    group_by(NestSize) %>% 
-    mutate(BinY4 = BinY,
-           Distance4 = Distance) %>% # The distance that is added to the Pythagorean distance is also different
-    select(NestSize, BinY4 ,Distance4)
-  
-  Bin7 <- DistBinsFullNetlogo %>% # Bin 7 has the same problem as above, one shortest distance that uses the x coordinate of bin 7, and another at Bin 4 where Scaled Y values are greater than the y coordinate of Bin 7
-    filter(Nest == "Tube" & Bin == 4) %>%
-    group_by(NestSize) %>%
-    mutate(BinX7 = BinX,
-           Distance7 = Distance) %>% 
-    select(NestSize, BinX7, Distance7) # The distance that is added to the Pythagorean distance is also different
-  
-  Bin3 <- DistBinsFullNetlogo %>% # Bin 3 has the same problem as above, one shortest distance that uses the x coordinate of bin 3, and another at Bin 2 where Scaled Y values are less than the y coordinate of Bin 3
-    filter(Nest == "Tube" & Bin == 2) %>%
-    group_by(NestSize) %>%
-    mutate(BinX3 = BinX,
-           BinY3 = BinY,
-           Distance3 = Distance) %>%
-    select(NestSize, BinY3, BinX3, Distance3) # The distance that is added to the Pythagorean distance is also different
-  
-  DistBinsFullNetlogo <- left_join(DistBinsFullNetlogo, Bin4) %>% # Full distance references, joining all alternative references from above
-    left_join(Bin7) %>%
-    left_join(Bin3) %>%
-    left_join(Bin1)
-  
-  DistBins.tube <- DistBinsFullNetlogo %>% # Subsetting tube distance references
-    filter(Nest == "Tube") 
-  
-  DistBins.circle <- DistBinsFullNetlogo %>% # Subsetting circle distance references
-    filter(Nest == "Circle") 
-  
-  BinsTube <- data.table %>% # Subsetting tube nest data
-    filter(Nest == "Tube")
-  
-  BinsCircle <- data.table %>% # Subsetting circle nest data
-    filter(Nest == "Circle") 
-  
-  # TUBE NEST SHAPE
-  DistBinsTube <- left_join(BinsTube, DistBins.tube) %>% # Joining tube nest data with associated reference coordinates
-    group_by(NestSize, Bin) %>% # Group by NestSize and Bin columns
-    filter(Bin != 1) %>% # Filter out Bin 1, since this will be handled in the code below
-    mutate(DistanceX = ScaledX - BinX, # Distance from each individual's x coordinate to the x reference bin coordinate
-           DistanceY = ScaledY - BinY, # Distance from each individual's y coordinate to the y reference bin coordinate
-           DistanceY4 = ScaledY - BinY4, # Distance from each individual's y coordinate to the y reference bin 4 coordinate
-           DistanceX7 = ScaledX - BinX7, # Distance from each individual's x coordinate to the x reference bin 7 coordinate
-           DistanceX3 = ScaledX - BinX3, # Distance from each individual's x coordinate to the x reference bin 2 coordinate
-           DistanceY3 = ScaledY - BinY3, # Distance from each individual's x coordinate to the x reference bin 2 coordinate
-           # Pythagorean theorm sqrt(X^2 + Y^2) = the hypotenuse (PythagDist)
-           PythagDist = ifelse(Bin == 4 & Nest == "Tube" & ScaledX < BinX, 
-                               # This uses an if else statement where if its coordinates from bin 4 in the tube nest, and the x coordinate is less than the reference for the bin, then it uses DistanceY4, else just DistanceY from above
-                               sqrt((DistanceX^2) + (DistanceY4^2)), # Pythagorean distance from the alternative x and y axes distances for bin 4 calculated above
-                               # This uses an if else statement where if its coordinates from bin 7 in the tube nest, and the y coordinate is greater than the reference for the, then it uses DistanceX7, else just DistanceX from above
-                               ifelse(Bin == 7 & Nest == "Tube" & ScaledY > BinY, 
-                                      sqrt((DistanceX7^2) + (DistanceY^2)), # Pythagorean distance from the alternative x and y axes distances for bin 7 calculated above
-                                      # This uses an if else statement where if its coordinates from bin 3 in the tube nest, and the y coordinate is greater than the reference for the, then it uses DistanceX7, else just DistanceX from above
-                                      ifelse(Bin == 3 & Nest == "Tube" & ScaledY < BinY4,
-                                             sqrt((DistanceX3^2) + (DistanceY3^2)), # Pythagorean distance from the alternative x and y axes distances for bin 3 calculated above
-                                             sqrt((DistanceX^2) + (DistanceY^2))))), # Pythagorean distance from the x and y axes distances calculated above 
-           # Total distance, which includes the the closest bin to the nest entrance and reference distance for that bin to the nest entrance
-           DistanceTotal = ifelse(Bin == 4 & Nest == "Tube" & ScaledX < BinX, # Nested ifelse statements that produce the shortest distance to the nest entrance for each coordinate
-                                  PythagDist + Distance4, # Shortest distance for coordinates using the alternative bin 4 distance 
-                                  ifelse(Bin == 7 & Nest == "Tube" & ScaledY > BinY, # Shortest distance for coordinates using the alternative bin 7 distance 
-                                         PythagDist + Distance7, # Shortest distance for coordinates using the alternative bin 7 distance
-                                         ifelse(Bin == 3 & Nest == "Tube" & ScaledY < BinY4,
-                                                PythagDist + Distance3, # Shortest distance for coordinates using the alternative bin 3 distance
-                                                PythagDist + Distance)))) # Shortest distance for coordinates without alternatives
-  # Bin 1 for the tube nest, this considers corners at the entrance
-  DistBinsTubeBin1 <- left_join(BinsTube, DistBins.tube) %>% # Joining tube nest data with associated reference coordinates
-    group_by(NestSize, Bin) %>% # Group by NestSize and Bin columns
-    filter(Bin == 1) %>% # Filter out all but Bin 1
-    mutate(SegEntLeft = sqrt((BinX1 - LeftCorner)^2 + (0.2 - 0)^2), # Distance from the left corner to the entrance
-           SegEntRight = sqrt((RightCorner - BinX1)^2 + (0.2 - 0)^2), # Distance from the right corner to the entrance
-           AngleEnt1 = tan((0.2 - 0) / (BinX1 - LeftCorner)), # Angle between the distance from a corner to the entrance and the vertical line segment created from the entrance to the left corner
-           AngleEnt2 = tan((0.2 - 0) / (RightCorner - BinX1)), # Angle between the distance from a corner to the entrance and the vertical line segment created from the entrance to the right corner
-           DistanceX = ScaledX - BinX, # Distance from each individual's x coordinate to the x reference bin coordinate
-           DistanceY = ScaledY - BinY, # Distance from each individual's y coordinate to the y reference bin coordinate
-           PythagDistEnt = ifelse(ScaledX < LeftCorner, # Pythagorean distance to the left or right corner, based on whether the x coordinate is greater than or less than the left corner x reference
-                                  sqrt((LeftCorner - ScaledX)^2 + (ScaledY - 0.2)^2), # Pythagorean distance to the left corner
-                                  sqrt((ScaledX - RightCorner)^2 + (ScaledY - 0.2)^2)), # Pythagorean distance to the right corner
-           AngleEntExp = ifelse(ScaledX < LeftCorner, # ifelse statement that determines if the coordinate is on the left or right side, from the perspective of the corners 
-                                cos(abs(LeftCorner - ScaledX) / PythagDistEnt), # Angle between the coordinate and the horizontal segment from the left corner to the left side nest wall in bin 1
-                                cos(abs(ScaledX - RightCorner) / PythagDistEnt)), # Angle between the coordinate and the horizontal segment from the right corner to the right side nest wall in bin 1
-           AngleEntExp = ifelse(ScaledX >= LeftCorner & ScaledX <= RightCorner, # ifelse statement that determines if coordinates are not in the field considered for the corners
-                                180, AngleEntExp), # Assigns 180 to those coordinates, else it keeps the AngleEntExp from above
-           # Checks is the total angle from AngleEnt1 or AngleEnt1 + AngleEntExp + 90 degrees is less than 180 degrees
-           AngleCheckEnt = ifelse(((AngleEnt1 + AngleEntExp + 90) < 180) | ((AngleEnt2 + AngleEntExp + 90) < 180), "Yes", "No"),
-           # Shortest distance to the entrance, where distances are either just the pythagorean distance from the coordinate to the nest entrance or first to a corner + the corner reference distance to the entrance
-           DistanceTotal = ifelse(ScaledX <= BinX, # ifelse statement asking whether a coordinates x value is less than the x coordinate reference for bin 1
-                                  # ifelse statement either calculating the alternative distance to the entrance for coordinates that would cut a corner
-                                  ifelse(AngleCheckEnt == "Yes",  PythagDistEnt + SegEntLeft, # Left corner, if the condition is true
-                                         sqrt((DistanceX^2) + (DistanceY^2))), # Uses a coordinates pythagorean distance to the nest entrance if the corner will not be cut ("No" from above)
-                                  ifelse(AngleCheckEnt == "Yes",  PythagDistEnt + SegEntRight, # Right corner, if the condition is true
-                                         sqrt((DistanceX^2) + (DistanceY^2))))) # Uses a coordinates pythagorean distance to the nest entrance if the corner will not be cut ("No" from above)
-  # Joins together the tube nest shortest distances to the nest entrance
-  DistBinsTube <- full_join(DistBinsTube, DistBinsTubeBin1) 
-  
-  # CIRCLE NEST SHAPE
-  # Circle nest distances are the same as above except all coordinates run through the angle test 
-  DistBinsCircle <- left_join(BinsCircle, DistBins.circle) %>%
-    group_by(NestSize) %>% # Group by the NestSize column
-    mutate(DistanceX = ScaledX - BinX, # Distance from each individual's x coordinate to the x reference bin coordinate
-           DistanceY = ScaledY - BinY, # Distance from each individual's y coordinate to the y reference bin coordinate
-           SegEntLeft = sqrt((BinX1 - LeftCorner)^2 + (0.2 - 0)^2), # Distance from the left corner to the entrance
-           SegEntRight = sqrt((RightCorner - BinX1)^2 + (0.2 - 0)^2), # Distance from the right corner to the entrance
-           AngleEnt1 = tan((0.2 - 0) / (BinX1 - LeftCorner)), # Angle between the distance from a corner to the entrance and the vertical line segment created from the entrance to the left corner
-           AngleEnt2 = tan((0.2 - 0) / (RightCorner - BinX1)), # Angle between the distance from a corner to the entrance and the vertical line segment created from the entrance to the right corner
-           PythagDistEnt = ifelse(ScaledX < LeftCorner, # Pythagorean distance to the left or right corner, based on whether the x coordinate is greater than or less than the left corner x reference
-                                  sqrt((LeftCorner - ScaledX)^2 + (ScaledY - 0.2)^2), # Pythagorean distance to the left corner
-                                  sqrt((ScaledX - RightCorner)^2 + (ScaledY - 0.2)^2)), # Pythagorean distance to the right corner
-           AngleEntExp = ifelse(ScaledX < LeftCorner, # ifelse statement that determines if the coordinate is on the left or right side, from the perspective of the corners 
-                                cos(abs(LeftCorner - ScaledX) / PythagDistEnt), # Angle between the coordinate and the horizontal segment from the left corner to the left side nest wall in bin 1
-                                cos(abs(ScaledX - RightCorner) / PythagDistEnt)), # Angle between the coordinate and the horizontal segment from the right corner to the right side nest wall in bin 1
-           AngleEntExp = ifelse(ScaledX >= LeftCorner & ScaledX <= RightCorner, # ifelse statement that determines if coordinates are not in the field considered for the corners
-                                180, AngleEntExp), # Assigns 180 to those coordinates, else it keeps the AngleEntExp from above
-           # Checks is the total angle from AngleEnt1 or AngleEnt1 + AngleEntExp + 90 degrees is less than 180 degrees
-           AngleCheckEnt = ifelse(((AngleEnt1 + AngleEntExp + 90) < 180) | ((AngleEnt2 + AngleEntExp + 90) < 180), "Yes", "No"),
-           # Shortest distance to the entrance, where distances are either just the pythagorean distance from the coordinate to the nest entrance or first to a corner + the corner reference distance to the entrance
-           DistanceTotal = ifelse(ScaledX <= BinX, # ifelse statement asking whether a coordinates x value is less than the x coordinate reference for bin 1
-                                  # ifelse statement either calculating the alternative distance to the entrance for coordinates that would cut a corner
-                                  ifelse(AngleCheckEnt == "Yes",  PythagDistEnt + SegEntLeft, # Left corner, if the condition is true
-                                         sqrt((DistanceX^2) + (DistanceY^2))), # Uses a coordinates pythagorean distance to the nest entrance if the corner will not be cut ("No" from above)
-                                  ifelse(AngleCheckEnt == "Yes",  PythagDistEnt + SegEntRight, # Right corner, if the condition is true
-                                         sqrt((DistanceX^2) + (DistanceY^2))))) # Uses a coordinates pythagorean distance to the nest entrance if the corner will not be cut ("No" from above)
-  SimDistScaled <<- full_join(DistBinsTube, DistBinsCircle) %>% # Full join the Tube and Circle nest data sets 
-    group_by(NestSize) %>% # Group by the NestSize column
-    mutate(ScaledDist = DistanceTotal / (MaxDist), # Divide the distance of each individual to the entrance by the maximum possible distance in the tube nest shape. 
-           ScaledDist = ifelse(ScaledDist > 1, 1, ScaledDist),
-           Density = ifelse(NestSize == "Small", "High", "Low"), # Create a density colimn
-           WorkerType = "RandSim") %>% # Create a worker type column
-    ungroup() %>% # Ungroup the data set
-    select(NestSize, Nest, RunNumber, ScaledX, ScaledY, Bin, ScaledDist, Density, WorkerType) %>% # Select the desired columns. 
-    left_join(CornerFullSim) %>% # Join with data set that associates nest sections with the presence of a corner or not
-    distinct()
-}
-
-# Run the shortest distance from the bin function for the Netlogo simulation data set
-DistanceCoordsFunctionNetlogo(NetlogoBinnedFull)
+# Write dataset
+write.csv(AlateDistScaledRD2, here("analysis", "data", "processed", "AlateDistScaledRD2.csv"), row.names = FALSE)
 
 ####################################################################################################################
 # CALCULATE THE BROOD CENTER 
@@ -1260,7 +1171,7 @@ Prop_functionBrood <- function(data.table) {
     select(c(Colony, Nest, Day, Density)) %>% # Select the desired columns
     drop_na() %>% # Remove any NAs
     distinct() # Remove duplicate rows
-  NestArchNullBins <- full_join(BroodPropNull, BinsNullFull) # Join the two null data sets
+  NestArchNullBins <- full_join(BroodPropNull, BinsNullFull, relationship = "many-to-many") # Join the two null data sets
   # Joining the working data set to the null one, which keeps the zeros in the final data set
   AntPropFullBrood <<- full_join(NestArchNullBins, BroodProp) %>%  
     group_by(Colony, Nest, Day) %>% # Group by columns Colony, Nest, and Day
@@ -1274,6 +1185,9 @@ Prop_functionBrood <- function(data.table) {
 
 # Run the proportions of brood in nest sections function for the FullDataCoordBrood data set 
 Prop_functionBrood(FullDataCoordBrood)
+
+# Write dataset
+write.csv(AntPropFullBrood, here("analysis", "data", "processed", "AntPropFullBrood.csv"), row.names = FALSE)
 
 # BROOD
 # Low density treatment
@@ -1292,7 +1206,7 @@ Prop_functionBrood <- function(data.table) {
     select(c(Colony, Nest, Day, Density)) %>% # Select the desired columns
     drop_na() %>% # Remove any NAs
     distinct() # Remove duplicate rows
-  NestArchNullBins <- full_join(BroodPropNull, BinsNullFull) # Join the two null data sets
+  NestArchNullBins <- full_join(BroodPropNull, BinsNullFull, relationship = "many-to-many") # Join the two null data sets
   # Joining the working data set to the null one, which keeps the zeros in the final data set
   AntPropFullBroodRD2 <<- full_join(NestArchNullBins, BroodProp) %>%  
     group_by(Colony, Nest, Day) %>% # Group by columns Colony, Nest, and Day
@@ -1305,6 +1219,9 @@ Prop_functionBrood <- function(data.table) {
 
 # Run the proportions of brood in nest sections function for the FullDataCoordBroodRD2 data set 
 Prop_functionBrood(FullDataCoordBroodRD2)
+
+# Write dataset
+write.csv(AntPropFullBroodRD2, here("analysis", "data", "processed", "AntPropFullBroodRD2.csv"), row.names = FALSE)
 
 # Join brood proportions in nest sections data sets
 AntPropFullBroodRD1_RD2 <- full_join(AntPropFullBrood, AntPropFullBroodRD2) 
@@ -1476,12 +1393,12 @@ DistBinsTubeRef <- left_join(DistBinsTubeRefFull, DistBinsTubeRef1) %>%
 # Filtering tube nest data from the brood centroid data set and joining reference coordinate and distance columns
 MeanBroodCoordFullTube <- MeanBroodCoordFull %>% 
   filter(Nest == "Tube") %>%
-  left_join(DistBinsTubeRef)
+  left_join(DistBinsTubeRef, relationship = "many-to-many")
 
 # Filtering circle nest data from the brood centroid data set and joining reference coordinate and distance columns
 MeanBroodCoordFullCircle <- MeanBroodCoordFull %>% 
   filter(Nest == "Circle") %>%
-  left_join(DistBinsFull)
+  left_join(DistBinsFull, relationship = "many-to-many")
 
 ####################################################################################################################
 # DISTANCE TO THE BROOD CENTER
@@ -1839,6 +1756,15 @@ WorkerToBroodFunction <- function(data.table) {
 # Run the worker distance to the brood center function for the FullDataCoordWorkersRD1_RD2 data set
 WorkerToBroodFunction(FullDataCoordWorkersRD1_RD2)
 
+# Write dataset
+write.csv(BroodCentDistWorkersRD1_RD2, here("analysis", "data", "processed", "BroodCentDistWorkersRD1_RD2.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(BroodCentDistWorkersRD1, here("analysis", "data", "processed", "BroodCentDistWorkersRD1.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(BroodCentDistWorkersRD2, here("analysis", "data", "processed", "BroodCentDistWorkersRD2.csv"), row.names = FALSE)
+
 # QUEENS
 QueenToBroodFunction <- function(data.table){
   # Create the alternative bin 4 reference y coordinate
@@ -2188,6 +2114,15 @@ QueenToBroodFunction <- function(data.table){
 # Run the queen distance to the brood center function for the FullDataCoordQueenRD1_RD2 data set
 QueenToBroodFunction(FullDataCoordQueenRD1_RD2)
 
+# Write dataset
+write.csv(BroodCentDistQueensRD1_RD2, here("analysis", "data", "processed", "BroodCentDistQueensRD1_RD2.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(BroodCentDistQueensRD1, here("analysis", "data", "processed", "BroodCentDistQueensRD1.csv"), row.names = FALSE)
+
+# Write dataset
+write.csv(BroodCentDistQueensRD2, here("analysis", "data", "processed", "BroodCentDistQueensRD2.csv"), row.names = FALSE)
+
 # ALATES
 AlateToBroodFunction <- function(data.table){
   # Create the alternative bin 4 reference y coordinate
@@ -2208,7 +2143,7 @@ AlateToBroodFunction <- function(data.table){
   # TUBE NEST
   DistanceToBroodAlateTube <- data.table %>% # Full alate data set
     filter(Nest == "Tube") %>% # Filter out tube nest shape
-    left_join(MeanBroodCoordFullTube) %>% # Join the tube nest brood centroid data set
+    left_join(MeanBroodCoordFullTube, relationship = "many-to-many") %>% # Join the tube nest brood centroid data set
     left_join(DistBin1_8Full) %>% # Join the tube nest reference distance data set
     left_join(Bin4) %>%
     left_join(Bin7) %>%
@@ -2513,7 +2448,7 @@ AlateToBroodFunction <- function(data.table){
   # CIRCLE NEST
   DistanceToBroodAlateCircle <- data.table %>% # Full worker data set 
     filter(Nest == "Circle") %>% # Filtering out circle nest coordinates
-    left_join(MeanBroodCoordFullCircle) %>% # Joining the circle brood centroid data set
+    left_join(MeanBroodCoordFullCircle, relationship = "many-to-many") %>% # Joining the circle brood centroid data set
     group_by(Colony, Day) %>% # Group by the Colony and Day columns
     mutate(BroodDist = sqrt(((ScaledX - BroodX)^2) + ((ScaledY - BroodY)^2)), # Shortest distance from each individual to the brood center
            ToBrood = BroodDist / MaxDist) %>% # Select the desired columns 
@@ -2529,3 +2464,5 @@ AlateToBroodFunction <- function(data.table){
 # Run the alate distance to the brood center function for the FullDataCoordAlate data set
 AlateToBroodFunction(FullDataCoordAlates)
 
+# Write dataset
+write.csv(BroodCentDistAlatesRD2, here("analysis", "data", "processed", "BroodCentDistAlatesRD2.csv"), row.names = FALSE)

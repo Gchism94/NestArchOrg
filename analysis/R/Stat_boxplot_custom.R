@@ -34,7 +34,8 @@
 #' p + stat_boxplot_custom(qs = c(.1, .25, .5, .75, .9))
 #' 
 #' @export
-#' ## Fixing boxplots
+#' 
+## Fixing boxplots
 # Code adapted from: https://rdrr.io/github/BoulderCodeHub/CRSSIO/src/R/stat_boxplot_custom.R
 # Full explanation can be found in the stat_boxplot_custom.R file
 

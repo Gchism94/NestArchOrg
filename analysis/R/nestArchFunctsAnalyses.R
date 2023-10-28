@@ -21,6 +21,7 @@ if (!require(pacman)) install.packages('pacman') # Download package with functio
 ####################################################################################################################
 
 pacman::p_load(assertthat,
+               colorspace,
                cowplot,
                ggdist,
                ggpointdensity,
@@ -36,7 +37,10 @@ pacman::p_load(assertthat,
                viridis,
                webshot)
 
-pacman::p_load_gh('BoulderCodeHub/CRSSIO')
+pacman::p_load_gh('BoulderCodeHub/CRSSIO',
+                  'Ifeanyi55/Convert2Docx')
+
+#Convert2Docx::install_engine()
 
 webshot::install_phantomjs(force = TRUE)
 
@@ -177,11 +181,15 @@ AllColonyMemberDensity <-
 # Reorder the ColonyMember column's factors
 AllColonyMemberDensity$ColonyMember = factor(AllColonyMemberDensity$ColonyMember, levels=c('Workers','Brood','Queens','Alates'))
 
+label_function <- function(x) {
+  return(x / 400)
+}
+
 # Plot
 DensityPlotColony <- AllColonyMemberDensity %>%
   ggplot(aes(ScaledX, ScaledY)) +
-  geom_pointdensity(alpha = 0.75) +
-  scale_color_viridis() +
+  geom_pointdensity(alpha = 0.75, method = "default") +
+  scale_color_viridis(labels = label_function) +
   coord_fixed() +
   theme_pubclean() +
   xlab(NULL) +
@@ -203,8 +211,11 @@ DensityPlotColony <- AllColonyMemberDensity %>%
                                   even.steps = FALSE,
                                   frame.colour = "black"))
 
+# Use ggplot_build to inspect the calculated values
+DensityPlotColony
+
 # Save plot as a PDF
-ggsave(file = "analysis/figures/Fig2.pdf", plot = DensityPlotColony, width = 8.5, height = 4, units = "in")
+ggsave(file = "analysis/figures/Fig2.jpg", plot = DensityPlotColony, width = 8.5, height = 4, units = "in")
 
 ####################################################################################################################
 # NEST SECTION DENSITY CALCULATIONS
@@ -471,7 +482,7 @@ WorkerProp1 <- ggplot(data = AntPropFullWorkers %>% arrange(Nest),
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  scale_y_continuous(limits = c(0, 0.75), breaks = c(0, 0.25, 0.5, 0.75))
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1.0))
 
 WorkerProp2 <- ggplot(data = AntPropFullWorkersRD2 %>% arrange(Nest), 
                       aes(x = as.factor(Bin), y = PropWorker, fill = Nest)) + 
@@ -492,7 +503,7 @@ WorkerProp2 <- ggplot(data = AntPropFullWorkersRD2 %>% arrange(Nest),
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  scale_y_continuous(limits = c(0, 0.75), breaks = c(0, 0.25, 0.5, 0.75))
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1.0))
 
 
 # Compiling the worker density in nest sections box plots 
@@ -526,7 +537,7 @@ WorkerPropPlotFull <- annotate_figure(WorkerPropPlot,
 # Corner - Presence of a corner in the nest section (Y / N)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_workerProp <- lmer(PropWorker ~ poly(Bin, degree = 2, raw = TRUE) * Nest * Density + Day + Corner + (1 | Colony), data = AntPropFullWorkersRD1_RD2)
+m_workerProp <- lmer(PropWorker ~ poly(Bin, degree = 2, raw = TRUE) * Nest + Density + Day + Corner + (1 | Colony), data = AntPropFullWorkersRD1_RD2)
 
 # BROOD DENSITIES IN NEST SECTIONS
 # BOXPLOTS
@@ -538,16 +549,17 @@ BroodProp1 <- ggplot(data = AntPropFullBrood %>% arrange(Nest),
                coef = 200) +
   xlab(NULL) + 
   ylab(NULL) +
+  ggtitle("High density") +
   theme_pubclean() +  
   theme(axis.text = element_text(size = 18, color = "black"),
         axis.ticks = element_blank(),
         axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "black", hjust = 0.87, vjust = 0.5),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.87, vjust = 0.5),
         legend.position = "none") +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 1)
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1.0))
 
 # Low density treatment
 BroodProp2 <- ggplot(data = AntPropFullBroodRD2 %>% arrange(Nest), 
@@ -557,17 +569,19 @@ BroodProp2 <- ggplot(data = AntPropFullBroodRD2 %>% arrange(Nest),
                coef = 200) + 
   xlab(NULL) + 
   ylab(NULL) +
+  ggtitle("Low density") +
   theme_pubclean() +  
   theme(axis.text.y = element_text(size = 18, color = "white"),
         axis.text.x = element_text(size = 18, color = "black"),
         axis.ticks = element_blank(),
         axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "black", hjust = 0.875, vjust = 0.5),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.875, vjust = 0.5),
         legend.position = "none") +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 1)
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1.0))
+
 
 
 # Compiling the two above brood densities in nest sections boxplots 
@@ -575,14 +589,14 @@ BroodPropPlot <- ggarrange(BroodProp1, BroodProp2,
                            labels = c("(c)", "(d)"),
                            font.label = list(size = 18, face = "plain"),
                            label.x = 0.88,
-                           label.y = 1.2,
+                           label.y = 1,
                            ncol = 2, nrow = 1)
 
-# Annotating the compiled boxplots to include shared axes lables
+# Annotating the compiled boxplots to include shared axes labels
 BroodPropPlotFull <- annotate_figure(BroodPropPlot,
                                    top = text_grob("Brood", color = "black", 
                                                    size = 18, 
-                                                   x = 0.05, y = 0.25),
+                                                   x = 0.05, y = -0.75),
                                    bottom = NULL,
                                    left = NULL,
                                    right = NULL
@@ -599,7 +613,7 @@ BroodPropPlotFull <- annotate_figure(BroodPropPlot,
 # Corner - Presence of a corner in the nest section (Y / N)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_broodProp <- lmer(PropBrood ~ poly(Bin, degree = 2, raw = TRUE) * Nest * Density + Day + Corner + (1 | Colony), data = AntPropFullBroodRD1_RD2)
+m_broodProp <- lmer(PropBrood ~ poly(Bin, degree = 2, raw = TRUE) * Nest + Density + Day + Corner + (1 | Colony), data = AntPropFullBroodRD1_RD2)
 
 # QUEEN DENSITIES IN NEST SECTIONS
 # BOXPLOTS
@@ -613,16 +627,19 @@ QueenProp1 <- ggplot(data = AntPropFullQueen %>% arrange(Nest),
                       alpha = 0.65) +
   xlab(NULL) + 
   ylab(NULL) +
+  ggtitle("High density") +
   theme_pubclean() +
   theme(axis.text = element_text(size = 18, color = "black"),
         axis.ticks = element_blank(),
         axis.title = element_blank(),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.87, vjust = 0.5),
         legend.position = "none") +
   guides(fill = guide_legend(title = "Nest", color = "black")) +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 1)
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1.0))
+
 
 #Low density treatment
 QueenProp2 <- ggplot(data = AntPropFullQueenRD2 %>% arrange(Nest), 
@@ -633,30 +650,32 @@ QueenProp2 <- ggplot(data = AntPropFullQueenRD2 %>% arrange(Nest),
                       alpha = 0.65) +
   xlab(NULL) + 
   ylab(NULL) +
+  ggtitle("High density") +
   theme_pubclean() +
   theme(axis.ticks = element_blank(),
         axis.text.x = element_text(size = 18, color = "black"),
         axis.title = element_blank(),
         axis.text.y = element_text(size = 18, color = "white"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.87, vjust = 0.5),
         legend.position = "none") +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 1)
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1.0))
 
 # Compiling the two above queen densities in nest sections boxplots 
 QueenPropPlot <- ggarrange(QueenProp1, QueenProp2,
                            labels = c("(e)", "(f)"),
                            font.label = list(size = 18, face = "plain"),
                            label.x = 0.88,
-                           label.y = 1.2,
+                           label.y = 1,
                            ncol = 2, nrow = 1)
 
 # Annotating the compiled boxplots to include common axes labels
 QueenPropPlotFull <- annotate_figure(QueenPropPlot,
                 top = text_grob("Queens", color = "black", 
                                 size = 18, 
-                                x = 0.06, y = 0.25),
+                                x = 0.06, y = -0.75),
                 bottom = NULL,
                 left = NULL,
                 right = NULL
@@ -673,7 +692,7 @@ QueenPropPlotFull <- annotate_figure(QueenPropPlot,
 # Corner - Presence of a corner in the nest section (Y / N)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_queenProp <- lmer(PropQueen ~ poly(Bin, degree = 2, raw = TRUE) * Nest * Density + Day + Corner + (1 | Colony), data = AntPropFullQueenRD1_RD2)
+m_queenProp <- lmer(PropQueen ~ poly(Bin, degree = 2, raw = TRUE) * Nest + Density + Day + Corner + (1 | Colony), data = AntPropFullQueenRD1_RD2)
 
 # ALATE DENSITIES IN NEST SECTIONS
 # BOXPLOTS 
@@ -686,16 +705,17 @@ AlatePropFig <- ggplot(data = AntPropFullAlateRD2 %>% arrange(Nest),
                       alpha = 0.65) +
   xlab(NULL) + 
   ylab(NULL) +
+  ggtitle("Low density") +
   theme_pubclean() +
   theme(axis.text = element_text(size = 18, color = "black"),
         axis.ticks = element_blank(),
         axis.title = element_text(size = 18, color = "black"),
-        plot.title = element_text(size = 18, face = "bold", color = "black"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.87, vjust = 0.5),
         legend.position = "none") +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 1)
+  scale_y_continuous(limits = c(0, 1), breaks = c(0, 0.5, 1.0))
 
 # Empty plot with just a legend
 legend_props <- get_legend(
@@ -717,29 +737,30 @@ legend_props <- get_legend(
 
 # Arranging the above alate densities in nest sections boxplot 
 AlatePropPlot <- ggarrange(AlatePropFig,
-                           legend_props,
                            labels = c("(g)"),
                            font.label = list(size = 18, face = "plain"),
                            label.x = 0.88,
-                           label.y = 1.2,
-                           ncol = 2, nrow = 1)
+                           label.y = 1,
+                           ncol = 1, nrow = 1) + 
+  theme(plot.margin = margin(0.4, 0.1, 0.1, 0.1, "cm"))
 
 # Annotating the alate proportions boxplot to include a title
 AlateProp <- annotate_figure(AlatePropPlot,
                              top = text_grob("Alates", color = "black", 
                                              size = 18, 
-                                             x = 0.05, y = 0.25),
+                                             x = 0.115, y = -1.25),
                                    bottom = NULL,
                                    left = NULL,
                                    right = NULL
 )
 
+AlateLegend <- ggarrange(legend_props, AlateProp)
+
 # Compiling the brood and queen densities in nest sections plots
 AllProp <- cowplot::plot_grid(WorkerPropPlotFull, 
           BroodPropPlotFull, 
           QueenPropPlotFull,
-          AlateProp,
-          legend_props,
+          AlateLegend,
           ncol = 1,
           nrow = 4)
 
@@ -753,7 +774,7 @@ AllPropFull <- annotate_figure(AllProp,
 )
 
 # Save plot as a PDF
-ggsave(file = "analysis/figures/Fig3.jpg", plot = AllPropFull, width = 8.5, height = 8, units = "in")
+ggsave(file = "analysis/figures/Fig3.jpg", plot = AllPropFull, width = 8.5, height = 8, units = "in", dpi = 400)
 
 # LINEAR MIXED EFFECTS MODEL: Observed alate density through the nest
 # RESPONSE VARIABLE
@@ -779,9 +800,7 @@ tab_model(m_workerProp, m_broodProp, m_queenProp, m_alateProp,
           pred.labels = c("Intercept", "NestSect", "NestSect2", "Nest",
                           "Density", "Day", 
                           "Corner", "NestSect:Nest", 
-                          "NestSect2:Nest", "NestSect:Density", 
-                          "NestSect2:Density", "Nest:Density",
-                          "NestSect:Nest:Density", "NestSect2:Nest:Density"),
+                          "NestSect2:Nest"),
           col.order = c("est", "se", "df.error", "stat", "p"),
           string.pred = "Coeffcient",
           string.est = "Est.",
@@ -790,10 +809,13 @@ tab_model(m_workerProp, m_broodProp, m_queenProp, m_alateProp,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: colony member proportions within nest sections",
-          file = "analysis/supplementary-materials/Supplementary_Tables/TableA1.html")
+          file = "analysis/supplementary-materials/SupplementaryTables/Table1.html")
 
-webshot("analysis/supplementary-materials/supplementaryTables/TableA1.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA1.pdf")
+webshot("analysis/tables/Table1.html", 
+        "analysis/tables/Table1.pdf")
+
+Convert2Docx::Converter(pdf_file = "analysis/tables/Table1.pdf",
+                        docx_filename = "analysis/tables/Table1.docx")
 
 ####################################################################################################################
 # PLOTS AND ANALYSES: Colony member distances from the nest entrance
@@ -802,11 +824,14 @@ webshot("analysis/supplementary-materials/supplementaryTables/TableA1.html",
 ####################################################################################################################
 
 # WORKER SCALED DISTANCES FROM THE NEST ENTRANCE
-# HISTOGRAMS
+# HISTOGRAMS + BOXPLOTS COMBO PLOTS
 # High density treatment
+# Histogram
 WorkerDist1 <- ggplot(WorkerDistScaled %>% arrange(Nest), 
                       aes(ScaledDist, 
                           fill = Nest)) + 
+  geom_vline(aes(xintercept = 0), color = "gray85", linewidth = 2) +
+  geom_vline(aes(xintercept = 0.34), color = "gray85", linewidth = 2) +
   geom_histogram(position = "identity",
                  alpha = 0.7,
                  binwidth = 0.0416666) +
@@ -815,10 +840,116 @@ WorkerDist1 <- ggplot(WorkerDistScaled %>% arrange(Nest),
   xlab(NULL) + 
   ylab("Worker count") +
   theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 16, color = "black", hjust = 1),
+        axis.text.y = element_text(size = 16, color = "black"),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 18,color = "black", hjust = 1),
+        axis.title.y = element_text(size = 18,color = "black"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.8, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.justification = c(1.0, -0.7),
+        legend.position = c(1.0, 1.0),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  scale_x_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
+  scale_y_continuous(breaks = c(0, 2000),
+                     limits = c(0, 2000)) +
+  scale_fill_manual(breaks = c("Tube", "Circle"), 
+                    name = "Nest",
+                    values = c("red", "blue")) +
+  coord_flip()
+
+# Boxplot
+WorkerBox1 <- WorkerDistScaled %>% arrange(Nest) %>% left_join(NestAreaFull) |>
+  ggplot(aes(x = fct_reorder(as.factor(Colony), Number.ants), y = ScaledDist,
+             fill = Nest)) + 
+  geom_hline(aes(yintercept = 0), color = "gray85", linewidth = 2) +
+  geom_hline(aes(yintercept = 0.34), color = "gray85", linewidth = 2) +
+  geom_boxplot(color = "grey25", 
+               alpha = 0.65,
+               coef = 200) +
+  ggtitle("High density") +
+  labs(fill = "Nest") +
+  xlab("Colony") + 
+  ylab(NULL) +
+  theme_pubclean() +  
   theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
+        axis.text.y = element_blank(),
         axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
+        axis.title.x = element_text(size = 16,color = "black"),
+        axis.title.y = element_text(size = 16,color = "black"),
+        plot.title = element_text(size = 18, color = "black", hjust = 0.8, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.justification = c(1.0, -0.7),
+        legend.position = c(1.0, 1.0),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  scale_y_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
+  scale_fill_manual(breaks = c("Tube", "Circle"), 
+                    name = "Nest",
+                    values = c("red", "blue"))
+
+# Low density treatment
+# Histogram
+WorkerDist2 <- ggplot(WorkerDistScaledRD2 %>% arrange(Nest), 
+                      aes(ScaledDist, 
+                          fill = Nest)) + 
+  geom_vline(aes(xintercept = 0), color = "gray85", linewidth = 2) +
+  geom_vline(aes(xintercept = 0.34), color = "gray85", linewidth = 2) +
+  geom_histogram(position = "identity",
+                 alpha = 0.7,
+                 binwidth = 0.0416666) +
+  ggtitle("Low density") +
+  labs(color = "Nest") +
+  xlab(NULL) + 
+  ylab("Worker count") +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 16, color = "black", hjust = 1),
+        axis.text.y = element_text(size = 16, color = "black"),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 18,color = "black", hjust = 1),
+        axis.title.y = element_text(size = 18,color = "white"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.8, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.justification = c(1.0, -0.7),
+        legend.position = c(1.0, 1.0),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  scale_x_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
+  scale_y_continuous(breaks = c(0, 2000),
+                     limits = c(0, 2000)) +
+  scale_fill_manual(breaks = c("Tube", "Circle"), 
+                    name = "Nest",
+                    values = c("red", "blue")) +
+  coord_flip()
+
+# Boxplot
+WorkerBox2 <- WorkerDistScaledRD2 %>% arrange(Nest) %>% left_join(NestAreaFull) |>
+  ggplot(aes(x = fct_reorder(as.factor(Colony), Number.ants), y = ScaledDist,
+             fill = Nest)) +   
+  geom_hline(aes(yintercept = 0), color = "gray85", linewidth = 2) +
+  geom_hline(aes(yintercept = 0.34), color = "gray85", linewidth = 2) +
+  geom_boxplot(color = "grey25", 
+               alpha = 0.65,
+               coef = 200) +
+  ggtitle("Low density") +
+  labs(fill = "Nest") +
+  xlab("Colony") + 
+  ylab(NULL) +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 16, color = "black"),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18,color = "black"),
         axis.title.y = element_text(size = 18,color = "black"),
         plot.title = element_text(size = 18, color = "black", hjust = 0.8, vjust = 0.5),
         legend.key = element_blank(),
@@ -828,40 +959,11 @@ WorkerDist1 <- ggplot(WorkerDistScaled %>% arrange(Nest),
         legend.text = element_text(size = 18, color = "black"),
         legend.title = element_text(size = 18, color = "black"),
         legend.key.size = unit(1, 'cm')) +
+  scale_y_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
-                    values = c("red", "blue")) +
-  ylim(0, 2000)
-
-# Low density treatment
-WorkerDist2 <- ggplot(WorkerDistScaledRD2 %>% arrange(Nest), 
-                      aes(ScaledDist,
-                          fill = Nest)) + 
-  geom_histogram(position = "identity", 
-                 alpha = 0.7, 
-                 binwidth = 0.0416666) +
-  ggtitle("Low density") + 
-  labs(color = "Nest") +
-  xlab(NULL) + 
-  ylab(NULL) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "white"),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "black", hjust = 0.8, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1.0, -0.7),
-        legend.position = c(1.0, 1.0),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  guides(fill = guide_legend(title = "Nest", color = "black")) +
-  scale_fill_manual(breaks = c("Tube", "Circle"), 
-                    name = "Nest",
-                    values = c("red", "blue")) +
-  ylim(0, 2000)
+                    values = c("red", "blue"))
 
 # LINEAR MIXED EFFECTS MODEL: Worker distances from the nest entrance
 # RESPONSE VARIABLE
@@ -870,30 +972,103 @@ WorkerDist2 <- ggplot(WorkerDistScaledRD2 %>% arrange(Nest),
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
 # Day - Experimental observation (From days 1-16, always days 3-14 in High density treatment)
-# Corner - Presence of a corner in the nest section (Y / N)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_workerDist <- lmer(ScaledDist ~ Nest * Density + Day + Corner + (1 | Colony), data = WorkerDistScaledRD1_RD2)
+m_workerDist <- lmer(ScaledDist ~ Nest * Density + Day + (1 | Colony), data = WorkerDistScaledRD1_RD2)
 
 # BROOD SCALED DISTANCES FROM THE NEST ENTRANCE
-# HISTOGRAMS
+# HISTOGRAMS + BOXPLOTS COMBO PLOTS
 # High density treatment
-BroodDist1 <- ggplot(BroodDistScaled %>% arrange(Nest),
-                   aes(ScaledDist, 
-                       fill = Nest)) + 
-  geom_histogram(position = "identity", 
-                 alpha = 0.7, 
-                 binwidth = 0.0416666) + 
+# Histogram
+BroodDist1 <- ggplot(BroodDistScaled %>% arrange(Nest), 
+                     aes(ScaledDist, 
+                         fill = Nest)) +
+  geom_vline(aes(xintercept = 0), color = "gray85", linewidth = 2) +
+  geom_vline(aes(xintercept = 0.34), color = "gray85", linewidth = 2) +
+  geom_histogram(position = "identity",
+                 alpha = 0.7,
+                 binwidth = 0.0416666) +
+  ggtitle("High density") +
+  labs(color = "Nest") +
+  xlab(NULL) + 
+  ylab("Brood count") +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 16, color = "black", hjust = 1),
+        axis.text.y = element_text(size = 16, color = "black"),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 18,color = "black", hjust = 1),
+        axis.title.y = element_text(size = 18,color = "black"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.8, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.justification = c(1.0, -0.7),
+        legend.position = c(1.0, 1.0),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  scale_x_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
+  scale_y_continuous(breaks = c(0, 8000),
+                     limits = c(0, 8000)) +
+  scale_fill_manual(breaks = c("Tube", "Circle"), 
+                    name = "Nest",
+                    values = c("red", "blue")) +
+  coord_flip()
+
+# Boxplot
+BroodBox1 <- BroodDistScaled %>% arrange(Nest) %>% left_join(NestAreaFull) |>
+  ggplot(aes(x = fct_reorder(as.factor(Colony), Number.ants), y = ScaledDist,
+             fill = Nest)) + 
+  geom_hline(aes(yintercept = 0), color = "gray85", linewidth = 2) +
+  geom_hline(aes(yintercept = 0.34), color = "gray85", linewidth = 2) +
+  geom_boxplot(color = "grey25", 
+               alpha = 0.65,
+               coef = 200) +
+  ggtitle("High density") +
+  labs(fill = "Nest") +
+  xlab("Colony") + 
+  ylab(NULL) +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 18, color = "black"),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 16,color = "black"),
+        axis.title.y = element_text(size = 16,color = "black"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.8, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.justification = c(1.0, -0.7),
+        legend.position = c(1.0, 1.0),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  scale_y_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
+  scale_fill_manual(breaks = c("Tube", "Circle"), 
+                    name = "Nest",
+                    values = c("red", "blue"))
+
+# Low density treatment
+# Histogram
+BroodDist2 <- ggplot(BroodDistScaledRD2 %>% arrange(Nest), 
+                     aes(ScaledDist, 
+                         fill = Nest)) + 
+  geom_vline(aes(xintercept = 0), color = "gray85", linewidth = 2) +
+  geom_vline(aes(xintercept = 0.34), color = "gray85", linewidth = 2) +
+  geom_histogram(position = "identity",
+                 alpha = 0.7,
+                 binwidth = 0.0416666) +
   ggtitle("Low density") +
   labs(color = "Nest") +
   xlab(NULL) + 
   ylab("Brood count") +
   theme_pubclean() +  
-  theme(axis.ticks = element_blank(),
-        axis.text = element_text(size = 18,color = "black"),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18,color = "black"),
-        plot.title = element_text(size = 18, color = "white", hjust = 0.875, vjust = 0.5),
+  theme(axis.text.x = element_text(size = 16, color = "black", hjust = 1),
+        axis.text.y = element_text(size = 16, color = "black"),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_text(size = 18,color = "black", hjust = 1),
+        axis.title.y = element_text(size = 18, color = "white"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.8, vjust = 0.5),
         legend.key = element_blank(),
         legend.justification = c(1.0, -0.7),
         legend.position = c(1.0, 1.0),
@@ -901,30 +1076,35 @@ BroodDist1 <- ggplot(BroodDistScaled %>% arrange(Nest),
         legend.text = element_text(size = 18, color = "black"),
         legend.title = element_text(size = 18, color = "black"),
         legend.key.size = unit(1, 'cm')) +
-  guides(fill = guide_legend(title = "Nest", color = "black")) +
+  scale_x_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
+  scale_y_continuous(breaks = c(0, 8000),
+                     limits = c(0, 8000)) +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 8000) +
-  xlim(0, 1)
+  coord_flip()
 
-# Low density treatment
-BroodDist2 <- ggplot(BroodDistScaledRD2 %>% arrange(Nest), 
-                     aes(ScaledDist, 
-                         fill = Nest)) + 
-  geom_histogram(position = "identity", 
-                 alpha = 0.7, 
-                 binwidth = 0.0416666) +
+# Boxplot
+BroodBox2 <- BroodDistScaledRD2 %>% arrange(Nest) %>% left_join(NestAreaFull) |>
+  ggplot(aes(x = fct_reorder(as.factor(Colony), Number.ants), y = ScaledDist,
+             fill = Nest)) + 
+  geom_hline(aes(yintercept = 0), color = "gray85", linewidth = 2) +
+  geom_hline(aes(yintercept = 0.34), color = "gray85", linewidth = 2) +
+  geom_boxplot(color = "grey25", 
+               alpha = 0.65,
+               coef = 200) +
   ggtitle("Low density") +
-  labs(color="Nest") +
-  xlab(NULL) + 
+  labs(fill = "Nest") +
+  xlab("Colony") + 
   ylab(NULL) +
   theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "white"),
+  theme(axis.text.x = element_text(size = 16, color = "black"),
+        axis.text.y = element_blank(),
         axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "white", hjust = 0.875, vjust = 0.5),
+        axis.title.x = element_text(size = 18,color = "black"),
+        axis.title.y = element_text(size = 18, color = "white"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.8, vjust = 0.5),
         legend.key = element_blank(),
         legend.justification = c(1.0, -0.7),
         legend.position = c(1.0, 1.0),
@@ -932,35 +1112,33 @@ BroodDist2 <- ggplot(BroodDistScaledRD2 %>% arrange(Nest),
         legend.text = element_text(size = 18, color = "black"),
         legend.title = element_text(size = 18, color = "black"),
         legend.key.size = unit(1, 'cm')) +
-  guides(fill = guide_legend(title = "Nest")) +
+  scale_y_continuous(breaks = c(0, 0.5, 1.0),
+                     limits = c(0, 1)) +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
-                    values = c("red", "blue")) +
-  ylim(0, 8000) +
-  xlim(0, 1)
+                    values = c("red", "blue"))
 
 # Compiling the brood and queen densities in nest sections plots
-AllDist <- ggarrange(WorkerDist1,
-                         WorkerDist2,
-                         BroodDist1,
-                         BroodDist2,
-                         labels = c("(a)", "(b)", "(c)", "(d)"),
-                         label.x = 0.875,
-                         label.y = 0.999,
-                         font.label = list(size = 18, face = "plain"),
-                         ncol = 2, nrow = 2,
-                         common.legend = TRUE)
+fullDistPlot <- ggarrange(WorkerDist1, WorkerBox1, WorkerDist2, WorkerBox2,
+                          BroodDist1, BroodBox1, BroodDist2, BroodBox2,
+                          widths = c(1/2, 1, 1/2, 1, 1/2, 1, 1/2, 1), 
+                          common.legend = T,
+                          ncol = 4, nrow = 2,
+                          labels = c("", "(a)", "", "(b)",
+                                     "", "(c)", "", "(d)"),
+                          label.x = 0.85,
+                          font.label = list(size = 18, face = "plain"))
 
-AllDistFull <- annotate_figure(AllDist,
-                               top = NULL,
-                               bottom = text_grob("Scaled distance to entrance", color = "black", 
-                                                  size = 18),
-                               left = NULL,
-                               right = NULL
-)
+AllDistFull <- annotate_figure(fullDistPlot, 
+                top = NULL,
+                bottom = NULL,
+                left = text_grob("Scaled distance to nest entrance", color = "black", 
+                                 size = 18, rot = 90),
+                right = NULL
+                )
 
 # Save plot as a PDF
-ggsave(file = "analysis/figures/Fig4.jpg", plot = AllDistFull, width = 8.5, height = 4.5, units = "in")
+ggsave(file = "analysis/figures/Fig4.jpg", plot = AllDistFull, width = 11, height = 8, units = "in", dpi = 400)
 
 # LINEAR MIXED EFFECTS MODEL: Brood scaled distances from the nest entrance
 # RESPONSE VARIABLE
@@ -969,10 +1147,9 @@ ggsave(file = "analysis/figures/Fig4.jpg", plot = AllDistFull, width = 8.5, heig
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
 # Day - Experimental observation (From days 1-16, always days 3-14 in High density treatment)
-# Corner - Presence of a corner in the nest section (Y / N)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_broodDist <- lmer(ScaledDist ~ Nest * Density + Day + Corner + (1 | Colony), data = BroodDistScaledRD1_RD2)
+m_broodDist <- lmer(ScaledDist ~ Nest * Density + Day + (1 | Colony), data = BroodDistScaledRD1_RD2)
 
 # QUEEN SCALED DISTANCES FROM THE NEST ENTRANCE
 # HISTOGRAMS
@@ -1002,8 +1179,9 @@ QueenDist1 <- ggplot(QueenDistScaled %>% arrange(Nest),
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 100) +
-  xlim(0, 1)
+  xlim(0, 1) +
+  scale_y_continuous(breaks = c(0, 50, 100),
+                     limits = c(0, 100))
 
 # Low density treatment
 QueenDist2 <- ggplot(QueenDistScaledRD2 %>% arrange(Nest),
@@ -1030,8 +1208,9 @@ QueenDist2 <- ggplot(QueenDistScaledRD2 %>% arrange(Nest),
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 100) +
-  xlim(0, 1)
+  xlim(0, 1) +
+  scale_y_continuous(breaks = c(0, 50, 100),
+                     limits = c(0, 100))
 
 # Compiling the queens distance to the nest entrance histograms
 QueenDistPlot <- ggarrange(QueenDist1, QueenDist2,
@@ -1049,11 +1228,10 @@ QueenDistPlot <- ggarrange(QueenDist1, QueenDist2,
 # FIXED EFFECTS 
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
-# Corner - Presence of a corner in the nest section (Y / N)
 # Day - Experimental observation (From days 1-16, always days 3-14 in High density treatment)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_queenDist <- lmer(ScaledDist ~ Nest * Density + Corner + Day + (1 | Colony), data = QueenDistScaledRD1_RD2)
+m_queenDist <- lmer(ScaledDist ~ Nest * Density + Day + (1 | Colony), data = QueenDistScaledRD1_RD2)
 
 # ALATE SCALED DISTANCES TO THE NEST ENTRANCE
 # Removing individuals with unknown alate sex
@@ -1081,7 +1259,10 @@ AlateDist1 <- ggplot(AlateDistScaledRD2Plot %>% arrange(Nest),
   guides(fill = guide_legend(title = "Nest", color = "black")) +
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
-                    values = c("red", "blue")) 
+                    values = c("red", "blue")) +
+  scale_y_continuous(breaks = c(0, 50, 100),
+                     limits = c(0, 100))
+                     
 
 # BOXPLOT SHOWING THE RELATIONSHIP BETWEEN ALATE SEX AND SCALED DISTANCE TO THE NEST ENTRANCE 
 AlateDist2 <- ggplot(AlateDistScaledRD2Plot %>% arrange(Nest),
@@ -1126,7 +1307,7 @@ QueenAlateDist <- ggarrange(QueenDistPlot,
                             ncol = 1, nrow = 2)
 
 # Save plot as a PDF
-ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A4.pdf", plot = QueenAlateDist, width = 8.5, height = 6, units = "in")
+ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A4.jpg", plot = QueenAlateDist, width = 8.5, height = 6, units = "in", dpi = 400)
 
 # LINEAR MIXED EFFECTS MODEL: Alate scaled distances from the nest entrance
 # RESPONSE VARIABLE
@@ -1134,12 +1315,11 @@ ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A4.pdf"
 # FIXED EFFECTS 
 # Nest - Nest shape (Tube / Circle)
 # Sex - Alate sex (M / F)
-# Corner - Presence of a corner in the nest section (Y / N)
 # Day - Experimental observation (From days 1-16, always days 3-14 in High density treatment)
 # Ratio - Ratio of male alates over total alates in the observation (0 - 1)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_alateDist <- lmer(ScaledDist ~ Nest + Sex + Ratio + Day + Corner + (1 | Colony), data = AlateDistScaledRD2Plot)
+m_alateDist <- lmer(ScaledDist ~ Nest + Sex + Ratio + Day + (1 | Colony), data = AlateDistScaledRD2Plot)
 
 # All colony member distance to the nest entrance model outputs in one concise table
 tab_model(m_workerDist, m_broodDist, m_queenDist, m_alateDist,
@@ -1150,8 +1330,7 @@ tab_model(m_workerDist, m_broodDist, m_queenDist, m_alateDist,
           show.icc = FALSE,
           auto.label = TRUE,
           dv.labels = c("Workers", "Brood", "Queens", "Alates"),
-          pred.labels = c("Intercept", "Nest", "Density", "Day",
-                          "Corner", "Nest:Density",
+          pred.labels = c("Intercept", "Nest", "Density", "Day", "Nest:Density",
                           "Sex", "SexRatio"),
           col.order = c("est", "se", "df.error", "stat", "p"),
           string.pred = "Coeffcient",
@@ -1161,10 +1340,13 @@ tab_model(m_workerDist, m_broodDist, m_queenDist, m_alateDist,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: colony member scaled distances to the nest entrance",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA2.html")
+          file = "analysis/supplementary-materials/supplementaryTables/TableA1.html")
 
-webshot("analysis/supplementary-materials/supplementaryTables/TableA2.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA2.pdf")
+webshot("analysis/supplementary-materials/supplementaryTables/TableA1.html", 
+        "analysis/supplementary-materials/supplementaryTables/TableA1.pdf")
+
+Convert2Docx::Converter(pdf_file = "analysis/supplementary-materials/supplementaryTables/TableA1.pdf",
+                        docx_filename = "analysis/supplementary-materials/supplementaryTables/TableA1.docx")
 
 ####################################################################################################################
 # PLOTS AND ANALYSES: Mobile colony member distances from the brood center
@@ -1254,7 +1436,7 @@ WorkerBroodFullDist <- annotate_figure(WorkerBroodDistPlot,
 )
 
 # Save plot as a PDF
-ggsave(file = "analysis/figures/Fig5.jpg", plot = WorkerBroodFullDist, width = 8.5, height = 3.5, units = "in")
+ggsave(file = "analysis/figures/Fig5.jpg", plot = WorkerBroodFullDist, width = 8.5, height = 3.5, units = "in", dpi = 400)
 
 # LINEAR MIXED EFFECTS MODEL: Worker scaled distances to the brood center
 # RESPONSE VARIABLE
@@ -1263,10 +1445,9 @@ ggsave(file = "analysis/figures/Fig5.jpg", plot = WorkerBroodFullDist, width = 8
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
 # Day - Experimental observation (From days 1-16, always days 3-14 in High density treatment)
-# Corner - Presence of a corner in the nest section (Y / N)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_workerBroodDist <- lmer(ToBrood ~ Nest * Density + Day + Corner + (1 | Colony), data = BroodCentDistWorkersRD1_RD2)
+m_workerBroodDist <- lmer(ToBrood ~ Nest * Density + Day + (1 | Colony), data = BroodCentDistWorkersRD1_RD2)
 
 # QUEEN SCALED DISTANCE TO THE BROOD CENTER
 # HISTOGRAMS
@@ -1297,8 +1478,9 @@ QueenBroodDist1 <- ggplot(BroodCentDistQueensRD1 %>% arrange(Nest),
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  xlim(0, 0.85) + 
-  ylim(0, 200)
+  xlim(0, 0.85) +
+  scale_y_continuous(breaks = c(0, 100, 200),
+                     limits = c(0, 200))
 
 # Low density treatment
 QueenBroodDist2 <- ggplot(BroodCentDistQueensRD2 %>% arrange(Nest),
@@ -1323,8 +1505,9 @@ QueenBroodDist2 <- ggplot(BroodCentDistQueensRD2 %>% arrange(Nest),
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  xlim(0, 0.85) + 
-  ylim(0, 200)
+  xlim(0, 0.85) +
+  scale_y_continuous(breaks = c(0, 100, 200),
+                     limits = c(0, 200))
 
 # Compiling queens scaled distances to the brood center plots
 QueenBroodDistPlot <- ggarrange(QueenBroodDist1, QueenBroodDist2,
@@ -1341,10 +1524,9 @@ QueenBroodDistPlot <- ggarrange(QueenBroodDist1, QueenBroodDist2,
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
 # Day - Experimental observation (From days 1-16, always days 3-14 in High density treatment)
-# Corner - Presence of a corner in the nest section (Y / N)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_queenBroodDist <- lmer(ToBrood ~ Nest * Density + Day + Corner + (1 | Colony), data = BroodCentDistQueensRD1_RD2)
+m_queenBroodDist <- lmer(ToBrood ~ Nest * Density + Day + (1 | Colony), data = BroodCentDistQueensRD1_RD2)
 
 # ALATE SCALED DISTANCE TO THE BROOD CENTER
 # Removing individuals with unknown alate sex
@@ -1372,7 +1554,8 @@ AlateBroodPlot <- ggplot(BroodCentDistAlatesRD2Plot %>% arrange(Nest),
   scale_fill_manual(breaks = c("Tube", "Circle"), 
                     name = "Nest",
                     values = c("red", "blue")) +
-  ylim(0, 100)
+  scale_y_continuous(breaks = c(0, 50, 100),
+                     limits = c(0, 100))
 
 # BOXPLOT SHOWING THE RELATIONSHIP BETWEEN ALATE SEX AND SCALED DISTANCE TO THE BROOD CENTER
 AlateBroodPlot2 <- ggplot(BroodCentDistAlatesRD2Plot %>% arrange(Nest),
@@ -1421,7 +1604,7 @@ QueenAlateBroodDist <- ggarrange(QueenBroodDistPlot,
                                  ncol = 1, nrow = 2)
 
 # Save plot as a PDF
-ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A5.pdf", plot = QueenAlateBroodDist, width = 8.5, height = 6, units = "in")
+ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A5.jpg", plot = QueenAlateBroodDist, width = 8.5, height = 6, units = "in", dpi = 400)
 
 # LINEAR MIXED EFFECTS MODEL: Alate scaled distances from the nest entrance
 # RESPONSE VARIABLE
@@ -1429,12 +1612,11 @@ ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A5.pdf"
 # FIXED EFFECTS 
 # Nest - Nest shape (Tube / Circle)
 # Sex - Alate sex (M / F)
-# Corner - Presence of a corner in the nest section (Y / N)
 # Day - Experimental observation (From days 1-16, always days 3-14 in High density treatment)
 # Ratio - Ratio of male alates over total alates in the observation (0 - 1)
 # RANDOM EFFECT
 # (1 | Colony) - Colony identification 
-m_alateBroodDist <- lmer(ToBrood ~ Nest + Sex + Day + Corner + Ratio + (1 | Colony), data = BroodCentDistAlatesRD2Plot)
+m_alateBroodDist <- lmer(ToBrood ~ Nest + Sex + Day + Ratio + (1 | Colony), data = BroodCentDistAlatesRD2Plot)
 
 # All colony member distance to the brood center model outputs in one concise table
 tab_model(m_workerBroodDist, m_queenBroodDist, m_alateBroodDist,
@@ -1446,7 +1628,7 @@ tab_model(m_workerBroodDist, m_queenBroodDist, m_alateBroodDist,
           auto.label = TRUE,
           dv.labels = c("Workers", "Queens", "Alates"),
           pred.labels = c("Intercept", "Nest", "Density", "Day",
-                          "Corner", "Nest:Density",
+                          "Nest:Density",
                           "Sex", "SexRatio"),
           col.order = c("est", "se", "df.error", "stat", "p"),
           string.pred = "Coeffcient",
@@ -1456,11 +1638,13 @@ tab_model(m_workerBroodDist, m_queenBroodDist, m_alateBroodDist,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: colony member scaled distances to the brood center",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA3.html")
+          file = "analysis/supplementary-materials/supplementaryTables/TableA2.html")
 
-webshot("analysis/supplementary-materials/supplementaryTables/TableA3.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA3.pdf")
+webshot("analysis/supplementary-materials/supplementaryTables/TableA2.html", 
+        "analysis/supplementary-materials/supplementaryTables/TableA2.pdf")
 
+Convert2Docx::Converter(pdf_file = "analysis/supplementary-materials/supplementaryTables/TableA2.pdf",
+                        docx_filename = "analysis/supplementary-materials/supplementaryTables/TableA2.docx")
 
 ####################################################################################################################
 # ANALYSES: Scaled spatial fidelity and occurrence zones
@@ -1474,10 +1658,13 @@ webshot("analysis/supplementary-materials/supplementaryTables/TableA3.html",
 # FIXED EFFECTS 
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # RANDOM EFFECTS
 # (1 | Colony) - Colony identification 
 # (1 | AntID) - Worker color identification 
-m_SFZScaled <- lmer(SFZ ~ Nest * Density + (1 | Colony) + (1 | AntID), data = WorkerDistScaledRD1_RD2SFZWorking)
+m_SFZScaled <- lmer(SFZ ~ Nest * Number.ants + Nest * MeanScaledDist + Density * Number.ants + (1 | Colony), data = WorkerDistScaledRD1_RD2SFZWorking)
+
 
 # LINEAR MIXED EFFECTS MODEL: Worker occurrence zone size (scaled) and nest shape
 # RESPONSE VARIABLE
@@ -1485,10 +1672,12 @@ m_SFZScaled <- lmer(SFZ ~ Nest * Density + (1 | Colony) + (1 | AntID), data = Wo
 # FIXED EFFECTS 
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # RANDOM EFFECTS
 # (1 | Colony) - Colony identification 
 # (1 | AntID) - Worker color identification 
-m_OccurScaled <- lmer(Occur ~ Nest * Density + (1 | Colony) + (1 | AntID), data = WorkerDistScaledRD1_RD2SFZWorking)
+m_OccurScaled <- lmer(Occur ~ Nest * Number.ants + Nest * MeanScaledDist + Density * Number.ants + (1 | Colony), data = WorkerDistScaledRD1_RD2SFZWorking)
 
 ####################################################################################################################
 # ANALYSES: True spatial fidelity and occurrence zones (cm^2)
@@ -1496,27 +1685,31 @@ m_OccurScaled <- lmer(Occur ~ Nest * Density + (1 | Colony) + (1 | AntID), data 
 # True worker spatial fidelity and occurrence zone sizes (cm^2), and consider how they relate to nest shape
 ####################################################################################################################
 
-# LINEAR MIXED EFFECTS MODEL: Worker spatial fidelity zone size (scaled) and nest shape
+# LINEAR MIXED EFFECTS MODEL: Worker spatial fidelity zone size (cm^2) and nest shape
 # RESPONSE VARIABLE
 # SFZ_Area - True worker fidelity zone size (cm^2), zones have at least 7 observations and be at least 15% of the total observations
 # FIXED EFFECTS 
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # RANDOM EFFECTS
 # (1 | Colony) - Colony identification 
 # (1 | AntID) - Worker color identification 
-m_SFZArea <- lmer(SFZ_Area ~ Nest * Density + (1 | Colony) + (1 | AntID), data = WorkerDistScaledRD1_RD2SFZWorking)
+m_SFZArea <- lmer(SFZ_Area ~ Nest * Number.ants + Nest * MeanScaledDist + Density * Number.ants + (1 | Colony), data = WorkerDistScaledRD1_RD2SFZWorking)
 
-# LINEAR MIXED EFFECTS MODEL: Worker occurrence zone size (scaled) and nest shape
+# LINEAR MIXED EFFECTS MODEL: Worker occurrence zone size (cm^2) and nest shape
 # RESPONSE VARIABLE
 # Occur_Area - True worker occurrence zone size (cm^2), zones have at least 7 observations
 # FIXED EFFECTS 
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # RANDOM EFFECTS
 # (1 | Colony) - Colony identification 
 # (1 | AntID) - Worker color identification 
-m_OccurArea <- lmer(Occur_Area ~ Nest * Density + (1 | Colony) + (1 | AntID), data = WorkerDistScaledRD1_RD2SFZWorking)
+m_OccurArea <- lmer(Occur_Area ~ Nest * Number.ants + Nest * MeanScaledDist + Density * Number.ants + (1 | Colony), data = WorkerDistScaledRD1_RD2SFZWorking)
 
 # All site fidelity v. nest shape model outputs in one concise table
 tab_model(m_SFZScaled, m_SFZArea, m_OccurScaled, m_OccurArea,
@@ -1527,7 +1720,8 @@ tab_model(m_SFZScaled, m_SFZArea, m_OccurScaled, m_OccurArea,
           show.icc = FALSE,
           auto.label = TRUE,
           dv.labels = c("Scaled Fidelity Zone", "Fidelity Zone (cm2)", "Scaled Occurrence Zone", "Occurrence Zone (cm2)"),
-          pred.labels = c("Intercept", "Nest", "Density","Nest:Density"),
+          pred.labels = c("Intercept", "Nest", "ColonySize", "MeanScaledDist", "Density","Nest:ColonySize", 
+                          "Nest:MeanScaledDist", "ColonySize:Density"),
           col.order = c("est", "se", "df.error", "stat", "p"),
           string.pred = "Coeffcient",
           string.est = "Est.",
@@ -1536,10 +1730,194 @@ tab_model(m_SFZScaled, m_SFZArea, m_OccurScaled, m_OccurArea,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: individual worker site fidelity in each nest shape",
-          file = "analysis/supplementary-materials/Supplementary_Tables/TableA4.html")
+          file = "analysis/tables/Table2.html")
 
-webshot("analysis/supplementary-materials/Supplementary_Tables/TableA4.html", 
-        "analysis/supplementary-materials/Supplementary_Tables/TableA4.pdf")
+webshot("analysis/tables/Table2.html", 
+        "analysis/tables/Table2.pdf")
+
+Convert2Docx::Converter(pdf_file = "analysis/tables/Table2.pdf",
+                        docx_filename = "analysis/tables/Table2.docx")
+
+####################################################################################################################
+# PLOTS AND ANALYSES: Spatial fidelity and occurrence zone sizes & distances from the nest entrance
+# The scripts below are to analyze and visualize: 
+# Worker spatial fidelity and occurrence zone sizes, and consider how they relate to both nest shape and mean distance from the nest entrance
+####################################################################################################################
+
+# Full dataset for below
+SFZ_All_Data <- left_join(WorkerDistScaledRD1_RD2SFZWorking, BroodCentDistWorkersSFZ)
+
+# FIDELITY ZONE SIZE AND DISTANCE TO THE NEST ENTRANCE
+# SCATTER PLOTS + BOXPLOT COMBO PLOTS
+# High density treatment
+scaleFUNDist <- function(x) sprintf("%.1f", x)
+scaleFUN <- function(x) sprintf("%.0f", x)
+SFZDist1 <- SFZ_All_Data %>% 
+  filter(Density == "High") %>% arrange(Nest) %>%
+  ggplot(aes(x = MeanScaledDist, y = SFZ, fill = Nest)) +
+  xlab(NULL) +
+  ylab("Scaled fidelity zone size") +
+  ggtitle("High density") +
+  geom_jitter(aes(x = MeanScaledDist, y = SFZ, color = MeanToBrood, shape = Nest), size = 6, alpha = 0.5) +
+  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 18, color = "black"),
+        axis.text.y = element_text(size = 18, color = "black"),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 18, color = "black"),
+        plot.title = element_text(size = 18, color = "black", hjust = 0.85, vjust = 0.65),
+        legend.key = element_blank(),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  labs(shape = "Nest", color = "Mean dist to brood") +
+  guides(alpha = "none",
+         color = guide_colourbar(barwidth = 14, barheight = 0.5, 
+                                 frame.colour = "black", ticks.colour = "black", ticks.linewidth = 0.75,
+                                 order = 2)) +
+  scale_fill_manual(breaks = c("Circle", "Tube"), 
+                    name = "Nest",
+                    values = c("blue", "red"),
+                    labels = c("Circle", "Tube"),
+                    guide = "none") +
+  scale_color_viridis() +
+  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
+  scale_ysidex_discrete(labels = c("C", "T")) +
+  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 1),
+                     breaks = c(0, 0.4, 0.8)) + 
+  scale_y_continuous(labels = scaleFUN, limits = c(1, 4))
+
+# Low density treatment
+SFZDist2 <- SFZ_All_Data %>% 
+  filter(Density == "Low") %>% arrange(Nest) %>%
+  ggplot(aes(x = MeanScaledDist, y = SFZ, fill = Nest)) +
+  xlab(NULL) +
+  ylab(NULL) +
+  ggtitle("Low density") +
+  geom_jitter(aes(x = MeanScaledDist, y = SFZ, color = MeanToBrood, shape = Nest), size = 6, alpha = 0.5) +
+  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 18, color = "black"),
+        axis.text.y = element_text(size = 18, color = "black"),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        plot.title = element_text(size = 18, color = "black", hjust = 0.85, vjust = 0.65),
+        legend.key = element_blank(),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  labs(shape = "Nest", color = "Mean dist to brood") +
+  guides(alpha = "none",
+         color = guide_colourbar(barwidth = 14, barheight = 0.5, 
+                                 frame.colour = "black", ticks.colour = "black", ticks.linewidth = 0.75,
+                                 order = 2)) +
+  scale_fill_manual(breaks = c("Circle", "Tube"), 
+                    name = "Nest",
+                    values = c("blue", "red"),
+                    labels = c("Circle", "Tube"),
+                    guide = "none") +
+  scale_color_viridis() +
+  scale_ysidex_discrete(labels = c("C", "T")) +
+  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 1),
+                     breaks = c(0, 0.4, 0.8)) +  
+  scale_y_continuous(labels = scaleFUN, limits = c(1, 4))
+
+# OCCURRENCE ZONE SIZE AND DISTANCE TO THE ENTRANCE
+# SCATTER PLOTS + BOXPLOT COMBO PLOTS
+# High density treatment
+OccurDist1 <- SFZ_All_Data %>% 
+  filter(Density == "High") %>% arrange(Nest) %>%
+  ggplot(aes(x = MeanScaledDist, y = Occur, fill = Nest)) +
+  xlab(NULL) +
+  ylab("Scaled occurrence zone size") +
+  ggtitle("High density") +
+  geom_jitter(aes(x = MeanScaledDist, y = Occur, color = MeanToBrood, shape = Nest), size = 6, alpha = 0.5) +
+  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 18, color = "black"),
+        axis.text.y = element_text(size = 18, color = "black"),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 18, color = "black"),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.825, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  labs(shape = "Nest", color = "Mean dist to brood") +
+  guides(alpha = "none",
+         color = guide_colourbar(barwidth = 14, barheight = 0.5, 
+                                 frame.colour = "black", ticks.colour = "black", ticks.linewidth = 0.75,
+                                 order = 2)) +
+  scale_fill_manual(breaks = c("Circle", "Tube"), 
+                    name = "Nest",
+                    values = c("blue", "red"),
+                    labels = c("Circle", "Tube"),
+                    guide = "none") +
+  scale_color_viridis() +
+  scale_ysidex_discrete(labels = c("C", "T")) +
+  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 1),
+                     breaks = c(0, 0.4, 0.8)) +  
+  scale_y_continuous(labels = scaleFUN, limits = c(1, 10))
+
+# Low density treatment
+OccurDist2 <- SFZ_All_Data %>% 
+  filter(Density == "Low") %>% arrange(Nest) %>%
+  ggplot(aes(x = MeanScaledDist, y = Occur, fill = Nest)) +
+  xlab(NULL) +
+  ylab(NULL) +
+  ggtitle("Low density") +
+  geom_jitter(aes(x = MeanScaledDist, y = Occur, color = MeanToBrood, shape = Nest), size = 6, alpha = 0.5) +
+  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
+  theme_pubclean() +  
+  theme(axis.text.x = element_text(size = 18, color = "black"),
+        axis.text.y = element_text(size = 18, color = "black"),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        plot.title = element_text(size = 18, color = "white", hjust = 0.825, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 18, color = "black"),
+        legend.title = element_text(size = 18, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  labs(shape = "Nest", color = "Mean dist to brood") +
+  guides(alpha = "none",
+         color = guide_colourbar(barwidth = 14, barheight = 0.5, 
+                                 frame.colour = "black", ticks.colour = "black", ticks.linewidth = 0.75,
+                                 order = 2)) +
+  scale_fill_manual(breaks = c("Circle", "Tube"), 
+                    name = "Nest",
+                    values = c("blue", "red"),
+                    labels = c("Circle", "Tube"),
+                    guide = "none") +
+  scale_color_viridis() +
+  scale_ysidex_discrete(labels = NULL) +
+  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 0.6)) +  
+  scale_y_continuous(labels = scaleFUN, limits = c(1, 10))
+
+SFZOccurDistPlot <- ggarrange(SFZDist1, SFZDist2,
+                              OccurDist1, OccurDist2,
+                              labels = c("(a)", "(b)", "(c)", "(d)"),
+                              label.x = 0.875,
+                              font.label = list(size = 18, face = "plain"),
+                              ncol = 2, nrow = 2,
+                              common.legend = TRUE)
+
+# Annotate the compiled plots to include a common x-axis
+SFZOccurFullBroodDistPlot <- annotate_figure(SFZOccurDistPlot,
+                                             top = NULL,
+                                             bottom = text_grob("Average scaled distance to nest entrance", color = "black",
+                                                                size = 18, x = 0.525),
+                                             left = NULL,
+                                             right = NULL
+)
+
+# Save plot as a PDF
+ggsave(file = "analysis/figures/Fig6.jpg", plot = SFZOccurFullBroodDistPlot, width = 8.5, height = 7, units = "in", dpi = 400)
 
 ####################################################################################################################
 # PLOTS AND ANALYSES: Spatial fidelity and occurrence zone sizes (cm^2) & colony size
@@ -1578,7 +1956,7 @@ SFZCol1 <- ggplot(data = WorkerDistScaledRD1_RD2SFZWorking %>% filter(Density ==
                      values = c("blue", "red"),
                      labels = c("Circle", "Tube")) +
   guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_y_continuous(labels = scaleFUNDist, limits = c(0, 1))  
+  scale_y_continuous(labels = scaleFUN, limits = c(0, 4), breaks = c(0, 2, 4))  
 
 # Low density treatment
 SFZCol2 <- ggplot(data = WorkerDistScaledRD1_RD2SFZWorking %>% filter(Density == "Low") %>% arrange(Nest),
@@ -1610,7 +1988,7 @@ SFZCol2 <- ggplot(data = WorkerDistScaledRD1_RD2SFZWorking %>% filter(Density ==
                      values = c("blue", "red"),
                      labels = c("Circle", "Tube")) +
   guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_y_continuous(labels = scaleFUNDist, limits = c(0, 1.75))  
+  scale_y_continuous(labels = scaleFUN, limits = c(0, 4), breaks = c(0, 2, 4))  
 
 # Occurrence zone size and number of observations for an individual
 OccurCol1 <- ggplot(data = WorkerDistScaledRD1_RD2SFZWorking %>% filter(Density == "High") %>% arrange(Nest), 
@@ -1643,7 +2021,7 @@ OccurCol1 <- ggplot(data = WorkerDistScaledRD1_RD2SFZWorking %>% filter(Density 
                      values = c("blue", "red"),
                      labels = c("Circle", "Tube")) +
   guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_y_continuous(labels = scaleFUNDist, limits = c(0, 3))  
+  scale_y_continuous(labels = scaleFUN, limits = c(0, 4), breaks = c(0, 2, 4))  
 
 # Low density treatment
 OccurCol2 <- ggplot(data = WorkerDistScaledRD1_RD2SFZWorking %>% filter(Density == "Low") %>% arrange(Nest),
@@ -1675,7 +2053,7 @@ OccurCol2 <- ggplot(data = WorkerDistScaledRD1_RD2SFZWorking %>% filter(Density 
                      values = c("blue", "red"),
                      labels = c("Circle", "Tube")) +
   guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_y_continuous(labels = scaleFUNDist, limits = c(0, 4)) 
+  scale_y_continuous(labels = scaleFUN, limits = c(0, 4), breaks = c(0, 2, 4))  
 
 # Compiling worker true occurrence zone size vs. colony size plots
 SFZOccurZoneColPlot <- ggarrange(SFZCol1, SFZCol2, OccurCol1, OccurCol2,
@@ -1696,478 +2074,13 @@ FidOccurColSizePlot <- annotate_figure(SFZOccurZoneColPlot,
 )
 
 # Save plot as a PDF
-ggsave(file = "analysis/figures/Fig7.pdf", plot = FidOccurColSizePlot, width = 8.5, height = 7, units = "in")
-
-# LINEAR MIXED EFFECTS MODEL: Worker fidelity zone size (scaled) and the number of workers in a colony (colony size)
-# RESPONSE VARIABLE
-# SFZ - Worker fidelity zone size 
-# FIXED EFFECTS 
-# Number.ants - The number of workers in a colony
-# Nest - Nest shape (Tube / Circle)
-# Density - Nest density (High / Low)
-# RANDOM EFFECTS
-# (1 | Colony) - Colony identification 
-# (1 | AntID) - Worker color identification 
-m_SFZAreaCol <- lmer(SFZ_Area ~ Number.ants * Nest * Density + (1 | Colony) + (1 | AntID), WorkerDistScaledRD1_RD2SFZWorking)
-
-# LINEAR MIXED EFFECTS MODEL: Worker occurrence zone size (scaled) and the number of workers in a colony (colony size)
-# RESPONSE VARIABLE
-# Occur - Worker occurrence zone size 
-# FIXED EFFECTS 
-# Number.ants - The number of workers in a colony
-# Nest - Nest shape (Tube / Circle)
-# Density - Nest density (High / Low)
-# RANDOM EFFECTS
-# (1 | Colony) - Colony identification 
-# (1 | AntID) - Worker color identification 
-m_OccurAreaCol <- lmer(Occur_Area ~ Number.ants * Nest * Density + (1 | Colony) + (1 | AntID), WorkerDistScaledRD1_RD2SFZWorking)
-
-# All site fidelity v. colony size model outputs in one concise table
-tab_model(m_SFZAreaCol, m_OccurAreaCol,
-          show.df = TRUE, 
-          show.stat = TRUE, 
-          show.se = TRUE, 
-          show.ci = FALSE, 
-          show.icc = FALSE,
-          auto.label = FALSE,
-          dv.labels = c("Fidelity Zone (cm2)", "Occurrence Zone (cm2)"),
-          pred.labels = c("Intercept", "ColonySize", "Nest",
-                          "Density", "ColonySize:Nest",
-                          "ColonySize:Density", "Nest:Density",
-                          "ColonySize:Nest:Density"),
-          col.order = c("est", "se", "df.error", "stat", "p"),
-          string.pred = "Coeffcient",
-          string.est = "Est.",
-          string.se = "SE",
-          string.stat = "T",
-          string.p = "P",
-          digits = 3,
-          title = "Linear Mixed Effects: individual worker site fidelity and colony size",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA5.html")
-
-webshot("analysis/supplementary-materials/supplementaryTables/TableA5.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA5.pdf")
-
+ggsave(file = "analysis/figures/Fig7.jpg", plot = FidOccurColSizePlot, width = 8.5, height = 7, units = "in", dpi = 400)
 
 ####################################################################################################################
-# PLOTS AND ANALYSES: Spatial fidelity and occurrence zone sizes & distances from the nest entrance
-# The scripts below are to analyze and visualize: 
-# Worker spatial fidelity and occurrence zone sizes, and consider how they relate to both nest shape and mean distance from the nest entrance
-####################################################################################################################
-
-# FIDELITY ZONE SIZE AND DISTANCE TO THE NEST ENTRANCE
-# LINE PLOTS
-# High density treatment
-scaleFUNDist <- function(x) sprintf("%.1f", x)
-scaleFUN <- function(x) sprintf("%.0f", x)
-SFZDist1 <- WorkerDistScaledRD1_RD2SFZWorking %>% 
-  filter(Density == "High") %>% arrange(Nest) %>%
-  ggplot(aes(x = MeanScaledDist, y = SFZ, fill = Nest)) +
-  xlab(NULL) +
-  ylab("Scaled fidelity zone size") +
-  ggtitle("High density") +
-  geom_point(aes(x = MeanScaledDist, y = SFZ, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanScaledDist, y = SFZ, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black") +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18, color = "black"),
-        plot.title = element_text(size = 18, color = "black", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube")) +
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL) 
-
-# Low density treatment
-SFZDist2 <- WorkerDistScaledRD1_RD2SFZWorking %>% 
-  filter(Density == "Low") %>% arrange(Nest) %>%
-  ggplot(aes(x = MeanScaledDist, y = SFZ, fill = Nest)) +
-  xlab(NULL) +
-  ylab(NULL) +
-  ggtitle("Low density") +
-  geom_point(aes(x = MeanScaledDist, y = SFZ, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanScaledDist, y = SFZ, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black") +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "black", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube")) +
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL)
-
-# OCCURRENCE ZONE SIZE AND DISTANCE TO THE BROOD CENTER
-# LINE PLOTS
-# High density treatment
-# LINE PLOTS
-# High density treatment
-OccurDist1 <- WorkerDistScaledRD1_RD2SFZWorking %>% 
-  filter(Density == "High") %>% arrange(Nest) %>%
-  ggplot(aes(x = MeanScaledDist, y = Occur, fill = Nest)) +
-  xlab(NULL) +
-  ylab("Scaled occurrence zone size") +
-  ggtitle("High density") +
-  geom_point(aes(x = MeanScaledDist, y = Occur, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanScaledDist, y = Occur, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black") +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18, color = "black"),
-        plot.title = element_text(size = 18, color = "white", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube"),
-                     guide = "none") +  
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL) +
-  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 0.6)) +  
-  scale_y_continuous(labels = scaleFUN, limits = c(1, 10))
-
-# Low density treatment
-OccurDist2 <- WorkerDistScaledRD1_RD2SFZWorking %>% 
-  filter(Density == "Low") %>% arrange(Nest) %>%
-  ggplot(aes(x = MeanScaledDist, y = Occur, fill = Nest)) +
-  xlab(NULL) +
-  ylab(NULL) +
-  ggtitle("Low density") +
-  geom_point(aes(x = MeanScaledDist, y = Occur, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanScaledDist, y = Occur, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black") +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "white", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube"),
-                     guide = "none") +
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL) +
-  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 0.6)) +  
-  scale_y_continuous(labels = scaleFUN, limits = c(1, 10))
-
-SFZOccurDistPlot <- ggarrange(SFZDist1, SFZDist2,
-                                OccurDist1, OccurDist2,
-                                labels = c("(a)", "(b)", "(c)", "(d)"),
-                                label.x = 0.875,
-                                font.label = list(size = 18, face = "plain"),
-                                ncol = 2, nrow = 2,
-                                common.legend = TRUE)
-
-# Annotate the compiled plots to include a common x-axis
-SFZOccurFullBroodDistPlot <- annotate_figure(SFZOccurDistPlot,
-                                             top = NULL,
-                                             bottom = text_grob("Average scaled distance to nest entrance", color = "black",
-                                                                size = 18, x = 0.525),
-                                             left = NULL,
-                                             right = NULL
-)
-
-# Save plot as a PDF
-ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A6.pdf", plot = SFZOccurFullBroodDistPlot, width = 8.5, height = 7, units = "in")
-
-# LINEAR MIXED EFFECTS MODEL: Worker spatial fidelity zone size (scaled) and nest shape
-# RESPONSE VARIABLE
-# SFZ - Worker spatial fidelity zone size (0 - 1, where 1 is the entire area of the nest), zones have at least 3 observations and at least 15% of total observations
-# FIXED EFFECTS 
-# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
-# Nest - Nest shape (Tube / Circle)
-# Density - Nest density (High / Low)
-# RANDOM EFFECTS
-# (1 | Colony) - Colony identification 
-# (1 | AntID) - Worker color identification 
-m_SFZDist <- lmer(SFZ ~ MeanScaledDist * Nest * Density + (1 | Colony) + (1 | AntID), data = WorkerDistScaledRD1_RD2SFZWorking)
-
-# LINEAR MIXED EFFECTS MODEL: Worker occurrence zone size (scaled) and nest shape
-# RESPONSE VARIABLE
-# SFZ - Worker spatial fidelity zone size (0 - 1, where 1 is the entire area of the nest), zones have at least 3 observations 
-# FIXED EFFECTS 
-# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
-# Nest - Nest shape (Tube / Circle)
-# Density - Nest density (High / Low)
-# RANDOM EFFECTS
-# (1 | Colony) - Colony identification 
-# (1 | AntID) - Worker color identification 
-m_OccurDist <- lmer(Occur ~ MeanScaledDist * Nest * Density + (1 | Colony) + (1 | AntID), data = WorkerDistScaledRD1_RD2SFZWorking)
-
-# All site fidelity v. colony size model outputs in one concise table
-tab_model(m_SFZDist, m_OccurDist,
-          show.df = TRUE, 
-          show.stat = TRUE, 
-          show.se = TRUE, 
-          show.ci = FALSE, 
-          show.icc = FALSE,
-          auto.label = FALSE,
-          dv.labels = c("Scaled Fidelity Zone", "Scaled Occurrence Zone"),
-          pred.labels = c("Intercept", "MeanScaledDist", "Nest",
-                          "Density", "MeanScaledDist:Nest",
-                          "MeanScaledDist:Density", "Nest:Density",
-                          "MeanScaledDist:Nest:Density"),
-          col.order = c("est", "se", "df.error", "stat", "p"),
-          string.pred = "Coeffcient",
-          string.est = "Est.",
-          string.se = "SE",
-          string.stat = "T",
-          string.p = "P",
-          digits = 3,
-          title = "Linear Mixed Effects: individual worker site fidelity v. scaled distance to the nest entrance",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA6.html")
-
-webshot("analysis/supplementary-materials/supplementaryTables/TableA6.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA6.pdf")
-
-####################################################################################################################
-# PLOTS AND ANALYSES: Spatial fidelity and occurrence zone sizes & distances from the brood center
+# ANALYSES: Spatial fidelity and occurrence zone sizes & distances from the brood center
 # The scripts below are to analyze and visualize: 
 # Worker spatial fidelity and occurrence zone sizes, and consider how they relate to both nest shape and mean distance from the brood center
 ####################################################################################################################
-
-# FIDELITY ZONE SIZE AND DISTANCE TO THE BROOD CENTER
-# LINE PLOTS
-# High density treatment
-SFZBroodDist1 <- BroodCentDistWorkersSFZ %>% 
-  filter(Density == "High") %>% arrange(Nest) %>%
-  ggplot(aes(x = MeanToBrood, y = SFZ, fill = Nest)) +
-  xlab(NULL) +
-  ylab("Scaled fidelity zone size") +
-  ggtitle("High density") +
-  geom_point(aes(x = MeanToBrood, y = SFZ, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanToBrood, y = SFZ, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black", alpha = 0) +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18, color = "black"),
-        plot.title = element_text(size = 18, color = "black", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube")) +
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL) 
-  
-# Low density treatment
-SFZBroodDist2 <- BroodCentDistWorkersSFZ %>% 
-  filter(Density == "Low") %>% arrange(Nest) %>%
-  ggplot(aes(x = MeanToBrood, y = SFZ, fill = Nest)) +
-  xlab(NULL) +
-  ylab(NULL) +
-  ggtitle("Low density") +
-  geom_point(aes(x = MeanToBrood, y = SFZ, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanToBrood, y = SFZ, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black", alpha = 0) +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "black", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest", fill = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube")) +
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL) +
-  scale_y_continuous(limits = c(0, 4))
-
-# OCCURRENCE ZONE SIZE AND DISTANCE TO THE BROOD CENTER
-# LINE PLOTS
-# High density treatment
-OccurBroodDist1 <- ggplot(data = BroodCentDistWorkersSFZ %>% filter(Density == "High") %>% arrange(Nest),
-                          aes(x = MeanToBrood, y = Occur,
-                              fill = Nest)) +
-  xlab(NULL) +
-  ylab("Scaled occurrence zone size") +
-  ggtitle("High density") +
-  geom_point(aes(x = MeanToBrood, y = Occur, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanToBrood, y = Occur, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black") +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18, color = "black"),
-        plot.title = element_text(size = 18, color = "white", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube"),
-                     guide = "none") +  
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL) +
-  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 0.6)) +  
-  scale_y_continuous(labels = scaleFUN, limits = c(1, 10))
-
-# Low density treatment
-OccurBroodDist2 <- ggplot(data = BroodCentDistWorkersSFZ %>% filter(Density == "Low") %>% arrange(Nest),
-                          aes(x = MeanToBrood, y = Occur,
-                              fill = Nest)) +
-  xlab(NULL) +
-  ylab(NULL) +
-  ggtitle("Low density") +
-  geom_point(aes(x = MeanToBrood, y = Occur, color = Nest, shape = Nest), size = 6, alpha = 0.33) +
-  geom_line(aes(x = MeanToBrood, y = Occur, linetype = Nest), stat = "smooth", method = lm, se = FALSE, size = 2, color = "black") +
-  geom_ysideboxplot(aes(x = Nest), orientation = "x", coef = 200, alpha = 0.65) +
-  theme_pubclean() +  
-  theme(axis.text.x = element_text(size = 18, color = "black"),
-        axis.text.y = element_text(size = 18, color = "black"),
-        axis.ticks = element_blank(),
-        axis.title = element_blank(),
-        plot.title = element_text(size = 18, color = "white", hjust = 0.825, vjust = 0.5),
-        legend.key = element_blank(),
-        legend.justification = c(1, -0.7),
-        legend.position = c(1, 0.71),
-        legend.direction = "horizontal",
-        legend.text = element_text(size = 18, color = "black"),
-        legend.title = element_text(size = 18, color = "black"),
-        legend.key.size = unit(1, 'cm')) +
-  labs(color = "Nest", linetype = "Nest", shape = "Nest") +
-  scale_fill_manual(breaks = c("Circle", "Tube"), 
-                    name = "Nest",
-                    values = c("blue", "red"),
-                    labels = c("Circle", "Tube"),
-                    guide = "none") +
-  scale_color_manual(breaks = c("Circle", "Tube"), 
-                     name = "Nest",
-                     values = c("blue", "red"),
-                     labels = c("Circle", "Tube"),
-                     guide = "none") +
-  guides(shape = guide_legend(override.aes = list(alpha = 0.75))) +
-  scale_ysidex_discrete(labels = NULL) +
-  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 0.6)) +  
-  scale_y_continuous(labels = scaleFUN, limits = c(1, 10))
-
-# Compile the spatial fidelity and occurrence zone v. worker scaled distance to the brood center plots and include a common legend
-OccurBroodDistPlot <- ggarrange(SFZBroodDist1, SFZBroodDist2,
-                                OccurBroodDist1, OccurBroodDist2,
-                                labels = c("(a)", "(b)", "(c)", "(d)"),
-                                label.x = 0.875,
-                                font.label = list(size = 18, face = "plain"),
-                                ncol = 2, nrow = 2,
-                                common.legend = TRUE)
-
-# Annotate the compiled plots to include a common x-axis
-SFZOccurFullBroodDistPlot <- annotate_figure(OccurBroodDistPlot,
-                                          top = NULL,
-                                          bottom = text_grob("Average scaled distance to brood center", color = "black",
-                                                             size = 18, x = 0.525),
-                                          left = NULL,
-                                          right = NULL
-)
-
-# Save plot as a PDF
-ggsave(file = "analysis/figures/Fig6.pdf", plot = SFZOccurFullBroodDistPlot, width = 8.5, height = 7.5, units = "in")
 
 # LINEAR MIXED EFFECTS MODEL: Worker spatial fidelity zone size (scaled) and nest shape
 # RESPONSE VARIABLE
@@ -2176,10 +2089,12 @@ ggsave(file = "analysis/figures/Fig6.pdf", plot = SFZOccurFullBroodDistPlot, wid
 # BroodDist - each worker's average distance to the brood center (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # RANDOM EFFECTS
 # (1 | Colony) - Colony identification 
 # (1 | AntID) - Worker color identification 
-m_SFZBroodDist <- lmer(SFZ ~ MeanToBrood * Nest * Density + (1 | Colony) + (1 | AntID), data = BroodCentDistWorkersSFZ)
+m_SFZBroodDist <- lmer(SFZ ~ Nest * Number.ants + Nest * MeanToBrood + Density * Number.ants + (1 | Colony), data = BroodCentDistWorkersSFZ)
 
 # LINEAR MIXED EFFECTS MODEL: Worker occurrence zone size (scaled) and nest shape
 # RESPONSE VARIABLE
@@ -2188,23 +2103,50 @@ m_SFZBroodDist <- lmer(SFZ ~ MeanToBrood * Nest * Density + (1 | Colony) + (1 | 
 # BroodDist - each worker's average distance to the brood center (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # Nest - Nest shape (Tube / Circle)
 # Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
 # RANDOM EFFECTS
 # (1 | Colony) - Colony identification 
-m_OccurBroodDist <- lmer(Occur ~ MeanToBrood * Nest * Density + (1 | Colony) + (1 | AntID), data = BroodCentDistWorkersSFZ)
+m_OccurBroodDist <- lmer(Occur ~ Nest * Number.ants + Nest * MeanToBrood + Density * Number.ants + (1 | Colony), data = BroodCentDistWorkersSFZ)
+
+# LINEAR MIXED EFFECTS MODEL: Worker spatial fidelity zone size (cm^2) and nest shape
+# RESPONSE VARIABLE
+# SFZ_Area - Worker spatial fidelity zone size (cm^2), zones have at least 3 observations and at least 15% of total observations
+# FIXED EFFECTS 
+# BroodDist - each worker's average distance to the brood center (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
+# Nest - Nest shape (Tube / Circle)
+# Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
+# RANDOM EFFECTS
+# (1 | Colony) - Colony identification 
+# (1 | AntID) - Worker color identification 
+m_SFZAreaBroodDist <- lmer(SFZ_Area ~ Nest * Number.ants + Nest * MeanToBrood + Density * Number.ants + (1 | Colony), data = BroodCentDistWorkersSFZ)
+
+# LINEAR MIXED EFFECTS MODEL: Worker occurrence zone size (cm^2) and nest shape
+# RESPONSE VARIABLE
+# Occur - Worker occurrence zone size (cm^2), zones have at least 3 observations 
+# FIXED EFFECTS 
+# BroodDist - each worker's average distance to the brood center (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
+# Nest - Nest shape (Tube / Circle)
+# Density - Nest density (High / Low)
+# Number.ants - Colony size
+# MeanScaledDist - each worker's average distance to the nest entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
+# RANDOM EFFECTS
+# (1 | Colony) - Colony identification 
+m_OccurAreaBroodDist <- lmer(Occur_Area ~ Nest * Number.ants + Nest * MeanToBrood + Density * Number.ants + (1 | Colony), data = BroodCentDistWorkersSFZ)
 
 # All site fidelity v. colony size model outputs in one concise table
-tab_model(m_SFZBroodDist, m_OccurBroodDist,
+tab_model(m_SFZBroodDist, m_SFZAreaBroodDist, m_OccurBroodDist, m_OccurAreaBroodDist, 
           show.df = TRUE, 
           show.stat = TRUE, 
           show.se = TRUE, 
           show.ci = FALSE, 
           show.icc = FALSE,
           auto.label = FALSE,
-          dv.labels = c("Scaled Fidelity Zone", "Scaled Occurrence Zone"),
-          pred.labels = c("Intercept", "MeanToBrood", "Nest",
-                          "Density", "MeanToBrood:Nest",
-                          "MeanToBrood:Density", "Nest:Density",
-                          "MeanToBrood:Nest:Density"),
+          dv.labels = c("Scaled Fidelity Zone", "Fidelity Zone (cm2)", "Scaled Occurrence Zone", "Occurrence Zone (cm2)"),
+          pred.labels = c("Intercept", "Nest", "ColonySize", "MeanToBrood", "Density","Nest:ColonySize", 
+                          "Nest:MeanToBrood", "ColonySize:Density"),
           col.order = c("est", "se", "df.error", "stat", "p"),
           string.pred = "Coeffcient",
           string.est = "Est.",
@@ -2213,7 +2155,137 @@ tab_model(m_SFZBroodDist, m_OccurBroodDist,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: individual worker site fidelity v. scaled distance to the brood center",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA7.html")
+          file = "analysis/supplementary-materials/supplementaryTables/TableA3.html")
 
-webshot("analysis/supplementary-materials/supplementaryTables/TableA7.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA7.pdf")
+webshot("analysis/supplementary-materials/supplementaryTables/TableA3.html", 
+        "analysis/supplementary-materials/supplementaryTables/TableA3.pdf")
+
+Convert2Docx::Converter(pdf_file = "analysis/supplementary-materials/supplementaryTables/TableA3.pdf",
+                        docx_filename = "analysis/supplementary-materials/supplementaryTables/TableA3.docx")
+
+####################################################################################################################
+# PLOTS AND ANALYSES: Scaled distance to nest entrance vs. scaled distance to brood center (SFZ data only)
+# The scripts below are to analyze and visualize: 
+# Scaled distance to nest entrance vs. scaled distance to brood center while only utilizing SFZ data to reduce noise
+####################################################################################################################
+
+# FULL DATAFRAME
+SFZ_All_Data <- left_join(WorkerDistScaledRD1_RD2SFZWorking, 
+          BroodCentDistWorkersSFZ |> select(Colony, Nest, AntID, MeanToBrood)) 
+
+# SCALED DIST TO ENTRANCE VS SCALED DIST TO BROOD
+# TUBE NEST
+TubeBroodvDist <- SFZ_All_Data %>% 
+  filter(Nest == "Tube") %>% 
+  ggplot(aes(x = MeanScaledDist, y = MeanToBrood, shape = Density, color = Density)) +
+  xlab(NULL) +
+  ylab("Average Scaled distance to brood center") +
+  ggtitle("Tube Nest") +
+  geom_point(size = 3, alpha = 0.33) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  theme_pubclean() +   
+  theme(axis.text.x = element_text(size = 16, color = "black"),
+        axis.text.y = element_text(size = 16, color = "black"),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 16, color = "black"),
+        plot.title = element_text(size = 16, color = "black", hjust = 0.825, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 16, color = "black"),
+        legend.title = element_text(size = 16, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  labs(shape = "Density", color = "Density", alpha = "none") +
+  guides(shape = guide_legend(override.aes = list(alpha = 1))) +
+  scale_color_manual(breaks = c("High", "Low"), 
+                     name = "Density",
+                     values = c(lighten("red", 0.4), darken("red", 0.6)),
+                     labels = c("High", "Low")) +
+  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 1)) +
+  scale_y_continuous(labels = scaleFUNDist, limits = c(0, 0.8),
+                     breaks = c(0, 0.4, 0.8))
+
+# CIRCLE NEST
+CircleBroodvDist <- SFZ_All_Data %>% 
+  filter(Nest == "Circle") %>% 
+  ggplot(aes(x = MeanScaledDist, y = MeanToBrood, shape = Density, color = Density)) +
+  xlab(NULL) +
+  ylab("Average Scaled occurrence zone size") +
+  ggtitle("Circle Nest") +
+  geom_point(size = 3, alpha = 0.33) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  theme_pubclean() +   
+  theme(axis.text.x = element_text(size = 16, color = "black"),
+        axis.text.y = element_text(size = 16, color = "black"),
+        axis.ticks = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 16, color = "white"),
+        plot.title = element_text(size = 16, color = "black", hjust = 0.825, vjust = 0.5),
+        legend.key = element_blank(),
+        legend.direction = "horizontal",
+        legend.text = element_text(size = 16, color = "black"),
+        legend.title = element_text(size = 16, color = "black"),
+        legend.key.size = unit(1, 'cm')) +
+  labs(shape = "Density", color = "Density", alpha = "none") +
+  guides(shape = guide_legend(override.aes = list(alpha = 1))) +
+  scale_color_manual(breaks = c("High", "Low"), 
+                     name = "Density",
+                     values = c(lighten("blue", 0.4), darken("blue", 0.6)),
+                     labels = c("High", "Low")) +
+  scale_x_continuous(labels = scaleFUNDist, limits = c(0, 0.34)) +
+  scale_y_continuous(labels = scaleFUNDist, limits = c(0, 0.2),
+                     breaks = c(0, 0.1, 0.2))
+
+# Compiling worker scaled dist to entrance vs. scaled dist to brood
+BroodScalesDistPlot <- ggarrange(TubeBroodvDist, CircleBroodvDist,
+                                 labels = c("(a)", "(b)"),
+                                 label.x = 0.875,
+                                 font.label = list(size = 16, face = "plain"),
+                                 ncol = 2, nrow = 1,
+                                 common.legend = FALSE) 
+
+# Annotate the compiled plots to include a common x-axis
+BroodScalesDistPlotFinal <- annotate_figure(BroodScalesDistPlot,
+                                             top = NULL,
+                                             bottom = text_grob("Average scaled distance to nest entrance", color = "black",
+                                                                size = 16, x = 0.525),
+                                             left = NULL,
+                                             right = NULL
+)
+
+# Save plot as a PDF
+ggsave(file = "analysis/figures/Fig8.jpg", plot = BroodScalesDistPlotFinal, width = 8.5, height = 7, units = "in", dpi = 400)
+
+# LINEAR MIXED EFFECTS MODEL: Queen scaled distances to the brood center
+# RESPONSE VARIABLE
+# MeanToBrood - Worker scaled distances from the brood center (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
+# FIXED EFFECTS 
+# MeanScaledDist - Worker scaled distances from the entrance (0 - 1, where 1 is the longest, shortest distance from the nest entrance)
+# Nest - Nest shape (Tube / Circle)
+# Density - Nest density (High / Low)
+# RANDOM EFFECT
+# (1 | Colony) - Colony identification 
+m_scaledBroodDistScaledDist <- lmer(MeanToBrood ~ MeanScaledDist * Nest + Density + (1 | Colony), data = SFZ_All_Data)
+
+tab_model(m_scaledBroodDistScaledDist,
+          show.df = TRUE, 
+          show.stat = TRUE, 
+          show.se = TRUE, 
+          show.ci = FALSE, 
+          show.icc = FALSE,
+          auto.label = TRUE,
+          dv.labels = NULL,
+          pred.labels = c("Intercept", "MeanScaledDist", "Nest", "Density",
+                          "MeanScaledDist:Nest"),
+          col.order = c("est", "se", "df.error", "stat", "p"),
+          string.pred = "Coeffcient",
+          string.est = "Est.",
+          string.se = "SE",
+          string.stat = "T",
+          string.p = "P",
+          digits = 3,
+          title = "Linear Mixed Effects: worker scaled distance to brood center vs.<br>scaled distance to nest entrance",
+          file = "analysis/supplementary-materials/supplementaryTables/TableA4.html")
+
+webshot("analysis/tables/Table3.html", 
+        "analysis/tables/Table3.pdf")

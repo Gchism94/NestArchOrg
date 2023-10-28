@@ -6055,7 +6055,7 @@ DistanceToBroodSFZFunction <- function(data.table){
     group_by(Colony) %>% # Group by the colony column
     mutate(ToBrood = BroodDist / MaxDist, # Scale the shortest distance from each individual to the brood center
            ToBrood = ifelse(ToBrood > 1, 1, ToBrood)) %>% # As a precaution, if any scaled distances are greater than 1, the value is converted to 1
-    select(Colony, Nest, Day, ScaledX, ScaledY, Density, ToBrood, AntID, SFZ, Occur, SFZ_Area, Occur_Area) %>% # Select desired columns
+    select(Colony, Nest, Day, ScaledX, ScaledY, Density, ToBrood, AntID, SFZ, Occur, SFZ_Area, Occur_Area, Number.ants) %>% # Select desired columns
     distinct() %>% # Remove any duplicates (shouldn't exist)
     drop_na() # Remove NAs
 
@@ -6066,7 +6066,7 @@ DistanceToBroodSFZCircle <- data.table %>% # Full worker data set
   group_by(Colony, Day) %>% # Group by the Colony and Day columns
   mutate(BroodDist = sqrt(((ScaledX - BroodX)^2) + ((ScaledY - BroodY)^2)), # Shortest distance from each individual to the brood center
          ToBrood = BroodDist / MaxDist) %>% # Select the desired columns 
-  select(Colony, Nest, Day, ScaledX, ScaledY, Density, ToBrood, AntID, SFZ, Occur, SFZ_Area, Occur_Area) %>% # Select the desired columns
+  select(Colony, Nest, Day, ScaledX, ScaledY, Density, ToBrood, AntID, SFZ, Occur, SFZ_Area, Occur_Area, Number.ants) %>% # Select the desired columns
   distinct() %>% # Remove any duplicates (shouldn't exist)
   drop_na() # Remove NAs
 

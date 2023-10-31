@@ -32,6 +32,7 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
     ├── tables/             # location of the tables produced by the scripts in R
     ├── data/
     │   ├── rawData/        # data obtained from elsewhere
+    |   ├── processed/      # processed output data from R scripts
     │   └── refData/        # data used to obtain final data and during the analysis
     |   
     ├── supplementary-materials/

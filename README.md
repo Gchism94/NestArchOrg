@@ -29,7 +29,7 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
     │   └── paper.pdf       # this is an elsevier .pdf written from paper.Rmd
     |
     ├── figures/            # location of the figures produced by the scripts in R
-    |
+    ├── tables/             # location of the tables produced by the scripts in R
     ├── data/
     │   ├── rawData/        # data obtained from elsewhere
     │   └── refData/        # data used to obtain final data and during the analysis

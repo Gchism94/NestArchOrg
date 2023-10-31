@@ -35,7 +35,7 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
     |   ├── processed/      # processed output data from R scripts
     │   └── refData/        # data used to obtain final data and during the analysis
     |   
-    ├── supplementary-materials/
+    ├── supplementaryMaterials/
     │   ├── supplementaryFigures/     
     |   |                   # supplementary figures for the main manuscript
     │   └── supplementaryTables/      
@@ -43,8 +43,8 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
     |
     └── R                   # Run in the following order (also see associated README.md)
         ├── Stat_boxplot_custom.R
-        |                   # Custom box plot function to extend the whiskers to full data range (0th and 100th percentiles)
-        ├── binsWorking.R  # R script used to bin raw x, y coordinates into nest sections
+        |
+        ├── binsWorking.R   # R script used to bin raw x, y coordinates into nest sections
         ├── distanceFunctions.R        
         |                   # R script used to calculate distances in the nest from binned x, y coordinates
         ├── fidelityZonesFunctions.R  # R script used to calculate site fidelity for binned marked worker x, y coordinates

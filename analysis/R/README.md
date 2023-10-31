@@ -11,8 +11,7 @@ RScript for the manuscript: Nest shape influences colony organization in ants: s
 Investigating how nest shape influences how _Temnothorax rugatulus_ colonies spatially organize in their nests. This includes physical location of colony members and their distances from the entrance, mobile colony member distance to the brood center, worker distance to the physical center of the nest, and comparing worker distributions with those predicted by a random walk model. 
 
 ## Dependencies 
-##### Scripts for this manuscript should be executed in the following order: 
-0. **Stat_boxplot_custom.R** - Custom boxplot function, replacing geom_boxplot() in ggplot2. The function extends the whisker range to the data range
+##### Scripts for this manuscript should be executed in the following order (but this is not required): 
 1. **binsWorking.R** - Functions to bin colony member and Netlogo simulation coordinates into nest sections
 2. **distanceFunctions.R** - Functions to find each colony member and Netlogo simulation coordinates shortest distances in the nest
 3. **fidelityZonesFunctions.R** - Functions towards marker worker site fidelity (spatial fidelity & occurrence zones)

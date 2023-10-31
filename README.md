@@ -48,7 +48,7 @@ Click the [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2
         ├── distanceFunctions.R        
         |                   # R script used to calculate distances in the nest from binned x, y coordinates
         ├── fidelityZonesFunctions.R  # R script used to calculate site fidelity for binned marked worker x, y coordinates
-        └── nestArchFuncts.Analyses.R
+        └── nestArchFunctsAnalyses.R
                             # R script used to produce all statistical analyses and figures
         
 

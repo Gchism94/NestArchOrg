@@ -28,6 +28,7 @@ pacman::p_load(assertthat,
                ggpubr,
                ggside,
                ggthemes,
+               gt,
                here,
                lme4,
                lmerTest,
@@ -51,7 +52,7 @@ webshot::install_phantomjs(force = TRUE)
 
 # PROCESSED DATASET FROM binsWorking.R
 # Full workers dataset
-FullDataCoordWorkersRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkersRD1_RD2.csv"))
+FullDataCoordWorkersRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkersRD1_RD2.csv"), row.names = NULL) 
 
 # Workers dataset high density
 FullDataCoordWorkers <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkers.csv"))
@@ -143,6 +144,89 @@ BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv")
 
 # REFERENCE COORDINATES FOR CORNERS (EMPIRICAL)
 CornerFull <- read.csv(here("analysis", "data", "RefData", "CornerFull.csv"))
+
+# NEST AREA REFERENCES
+NestAreaFull <- read.csv(here("analysis", "data", "RefData", "NestAreaFull.csv"))
+
+####################################################################################################################
+# COLONY CENSUS DATA TABLE
+# The below script produces a census data table for the experimental colonies
+# Specifically, the number of workers, brood (avg), queen(s), and alates (avg) are produced
+# In addition, the experimental nest area used is given
+####################################################################################################################
+workerCount <- WorkerDistScaledRD1_RD2 |>
+  group_by(Colony, Nest, Day) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(Colony) |>
+  summarise(num_workers = mean(count),
+            sd_workers = sd(count))
+
+queenCount <- QueenDistScaledRD1_RD2 |>
+  group_by(Colony, Nest, Day) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(Colony) |>
+  summarise(num_queens = mean(count),
+            sd_queens = sd(count))
+
+broodCount <- BroodDistScaledRD1_RD2 |>
+  group_by(Colony, Nest, Day) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(Colony) |>
+  summarise(num_brood = mean(count),
+            sd_brood = sd(count))
+
+alateCount <- AlateDistScaledRD2 |>
+  group_by(Colony, Nest, Day) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(Colony) |>
+  summarise(num_alates = mean(count),
+            sd_alates = sd(count))
+
+colonyCensus <- NestAreaFull |>
+  select(-Diameter) |>
+  rename(colony = Colony, 
+         num_ants = Number.ants, 
+         area = Area) |>
+  left_join(workerCount, by = c("colony" = "Colony")) |>
+  left_join(queenCount, by = c("colony" = "Colony")) |>
+  left_join(broodCount, by = c("colony" = "Colony")) |>
+  left_join(alateCount, by = c("colony" = "Colony")) |>
+  mutate(
+    ants = if_else(is.na(num_ants), "-", sprintf("%.0f", num_ants)),
+    area = if_else(is.na(area), "-", sprintf("%.2f", area)),
+    num_workers = if_else(is.na(num_workers) | is.na(sd_workers), "-", sprintf("%s ± %s", sprintf("%.0f", num_workers), sprintf("%.0f", sd_workers))),
+    num_queens = if_else(is.na(num_queens) | is.na(sd_queens), "-", sprintf("%s ± %s", sprintf("%.0f", num_queens), sprintf("%.0f", sd_queens))),
+    num_brood = if_else(is.na(num_brood) | is.na(sd_brood), "-", sprintf("%s ± %s", sprintf("%.0f", num_brood), sprintf("%.0f", sd_brood))),
+    num_alates = if_else(is.na(num_alates) | is.na(sd_alates), "-", sprintf("%s ± %s", sprintf("%.0f", num_alates), sprintf("%.0f", sd_alates)))) |>
+  relocate(ants, .after = colony) |>
+  relocate(area, .after = ants) |>
+  select(-contains("sd_") & -num_ants) |>
+  gt() |>
+  cols_label(
+    colony  = "Colony ID",
+    ants = "# Workers",
+    area = html("Nest Area (mm<sup>2</sup>)"),
+    num_workers = "Mean ± SD Workers",
+    num_queens = "Mean ± SD Queens",
+    num_brood = "Mean ± SD Brood",
+    num_alates = "Mean ± SD Alates"
+  ) |>
+  tab_header(
+    title = "Colony Census Data",
+    subtitle = "Number of each colony member in a colony, and the size of their nests"
+  ) |>
+  opt_align_table_header(align = "left") |>
+  tab_spanner(
+    label = "Study variation",
+    columns = starts_with("num")
+  ) |>
+  cols_align(
+    align = "left",
+    columns = everything()
+  ) 
+  
+gtsave(colonyCensus, here("analysis", "supplementaryMaterials", "supplementaryTables", "TableA1.docx"), )
+
 ####################################################################################################################
 # COLONY MEMBER SCATTERPLOTS
 # The below script produces the colony member density plots
@@ -809,7 +893,7 @@ tab_model(m_workerProp, m_broodProp, m_queenProp, m_alateProp,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: colony member proportions within nest sections",
-          file = "analysis/supplementary-materials/SupplementaryTables/Table1.html")
+          file = "analysis/tables/Table1.html")
 
 webshot("analysis/tables/Table1.html", 
         "analysis/tables/Table1.pdf")
@@ -1307,7 +1391,7 @@ QueenAlateDist <- ggarrange(QueenDistPlot,
                             ncol = 1, nrow = 2)
 
 # Save plot as a PDF
-ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A4.jpg", plot = QueenAlateDist, width = 8.5, height = 6, units = "in", dpi = 400)
+ggsave(file = "analysis/supplementaryMaterials/supplementaryFigures/Fig_A4.jpg", plot = QueenAlateDist, width = 8.5, height = 6, units = "in", dpi = 400)
 
 # LINEAR MIXED EFFECTS MODEL: Alate scaled distances from the nest entrance
 # RESPONSE VARIABLE
@@ -1340,13 +1424,13 @@ tab_model(m_workerDist, m_broodDist, m_queenDist, m_alateDist,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: colony member scaled distances to the nest entrance",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA1.html")
+          file = "analysis/supplementaryMaterials/supplementaryTables/TableA2.html")
 
-webshot("analysis/supplementary-materials/supplementaryTables/TableA1.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA1.pdf")
+webshot("analysis/supplementaryMaterials/supplementaryTables/TableA2.html", 
+        "analysis/supplementaryMaterials/supplementaryTables/TableA2.pdf")
 
-Convert2Docx::Converter(pdf_file = "analysis/supplementary-materials/supplementaryTables/TableA1.pdf",
-                        docx_filename = "analysis/supplementary-materials/supplementaryTables/TableA1.docx")
+Convert2Docx::Converter(pdf_file = "analysis/supplementaryMaterials/supplementaryTables/TableA2.pdf",
+                        docx_filename = "analysis/supplementaryMaterials/supplementaryTables/TableA2.docx")
 
 ####################################################################################################################
 # PLOTS AND ANALYSES: Mobile colony member distances from the brood center
@@ -1604,7 +1688,7 @@ QueenAlateBroodDist <- ggarrange(QueenBroodDistPlot,
                                  ncol = 1, nrow = 2)
 
 # Save plot as a PDF
-ggsave(file = "analysis/supplementary-materials/supplementaryFigures/Fig_A5.jpg", plot = QueenAlateBroodDist, width = 8.5, height = 6, units = "in", dpi = 400)
+ggsave(file = "analysis/supplementaryMaterials/supplementaryFigures/Fig_A5.jpg", plot = QueenAlateBroodDist, width = 8.5, height = 6, units = "in", dpi = 400)
 
 # LINEAR MIXED EFFECTS MODEL: Alate scaled distances from the nest entrance
 # RESPONSE VARIABLE
@@ -1638,13 +1722,13 @@ tab_model(m_workerBroodDist, m_queenBroodDist, m_alateBroodDist,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: colony member scaled distances to the brood center",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA2.html")
+          file = "analysis/supplementaryMaterials/supplementaryTables/TableA3.html")
 
-webshot("analysis/supplementary-materials/supplementaryTables/TableA2.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA2.pdf")
+webshot("analysis/supplementaryMaterials/supplementaryTables/TableA3.html", 
+        "analysis/supplementaryMaterials/supplementaryTables/TableA3.pdf")
 
-Convert2Docx::Converter(pdf_file = "analysis/supplementary-materials/supplementaryTables/TableA2.pdf",
-                        docx_filename = "analysis/supplementary-materials/supplementaryTables/TableA2.docx")
+Convert2Docx::Converter(pdf_file = "analysis/supplementaryMaterials/supplementaryTables/TableA3.pdf",
+                        docx_filename = "analysis/supplementaryMaterials/supplementaryTables/TableA3.docx")
 
 ####################################################################################################################
 # ANALYSES: Scaled spatial fidelity and occurrence zones
@@ -2155,13 +2239,13 @@ tab_model(m_SFZBroodDist, m_SFZAreaBroodDist, m_OccurBroodDist, m_OccurAreaBrood
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: individual worker site fidelity v. scaled distance to the brood center",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA3.html")
+          file = "analysis/supplementaryMaterials/supplementaryTables/TableA4.html")
 
-webshot("analysis/supplementary-materials/supplementaryTables/TableA3.html", 
-        "analysis/supplementary-materials/supplementaryTables/TableA3.pdf")
+webshot("analysis/supplementaryMaterials/supplementaryTables/TableA4.html", 
+        "analysis/supplementaryMaterials/supplementaryTables/TableA4.pdf")
 
-Convert2Docx::Converter(pdf_file = "analysis/supplementary-materials/supplementaryTables/TableA3.pdf",
-                        docx_filename = "analysis/supplementary-materials/supplementaryTables/TableA3.docx")
+Convert2Docx::Converter(pdf_file = "analysis/supplementaryMaterials/supplementaryTables/TableA4.pdf",
+                        docx_filename = "analysis/supplementaryMaterials/supplementaryTables/TableA4.docx")
 
 ####################################################################################################################
 # PLOTS AND ANALYSES: Scaled distance to nest entrance vs. scaled distance to brood center (SFZ data only)
@@ -2285,7 +2369,7 @@ tab_model(m_scaledBroodDistScaledDist,
           string.p = "P",
           digits = 3,
           title = "Linear Mixed Effects: worker scaled distance to brood center vs.<br>scaled distance to nest entrance",
-          file = "analysis/supplementary-materials/supplementaryTables/TableA4.html")
+          file = "analysis/supplementaryMaterials/supplementaryTables/TableA4.html")
 
 webshot("analysis/tables/Table3.html", 
         "analysis/tables/Table3.pdf")

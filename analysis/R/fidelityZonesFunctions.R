@@ -30,28 +30,28 @@ pacman::p_load(here,
 
 # PROCESSED DATASET FROM Bins_Working.R
 # Full workers dataset
-FullDataCoordWorkersRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkersRD1_RD2.csv"), row.names = FALSE)
+FullDataCoordWorkersRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkersRD1_RD2.csv"))
 
 # COLOR REFRENCE DATA SET
-ColorRefFull <- read.csv(here("analysis", "data", "RefData", "ColorRefFull.csv"), row.names = FALSE)
+ColorRefFull <- read.csv(here("analysis", "data", "RefData", "ColorRefFull.csv"))
 
 # NEST AREA REFERENCES
-NestAreaFull <- read.csv(here("analysis", "data", "RefData", "NestAreaFull.csv"), row.names = FALSE)
+NestAreaFull <- read.csv(here("analysis", "data", "RefData", "NestAreaFull.csv"))
 
 # SCALING REFERENCE DATA SET FOR CIRCLE NESTS (BASICALLY COLONY SIZE)
-ScalingCircleSFZ <- read.csv(here("analysis", "data", "RefData", "ScalingCircleSFZ.csv"), row.names = FALSE)
+ScalingCircleSFZ <- read.csv(here("analysis", "data", "RefData", "ScalingCircleSFZ.csv"))
 
 # DISTANCE TO NEST ENTRANCE (EMPIRICAL) REFERENCES
-DistBinsFull <- read.csv(here("analysis", "data", "RefData", "DistBinsFull.csv"), row.names = FALSE)
+DistBinsFull <- read.csv(here("analysis", "data", "RefData", "DistBinsFull.csv"))
 
 # NULL BINS REFERENCE (EMPIRICAL)
-BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv"), row.names = FALSE)
+BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv"))
 
 # BIN REFERENCE COORDINATES
-BinCoordFull <- read.csv(here("analysis", "data", "RefData", "BinCoordFull.csv"), row.names = FALSE)
+BinCoordFull <- read.csv(here("analysis", "data", "RefData", "BinCoordFull.csv"))
 
 # REFERENCE COORDINATES FOR CORNERS (EMPIRICAL)
-CornerFull <- read.csv(here("analysis", "data", "RefData", "CornerFull.csv"), row.names = FALSE)
+CornerFull <- read.csv(here("analysis", "data", "RefData", "CornerFull.csv"))
 
 ####################################################################################################################
 # CORRECTING COLOR COORDINATES

@@ -30,28 +30,29 @@ pacman::p_load(here,
 
 # PROCESSED DATASET FROM Bins_Working.R
 # Full workers dataset
-FullDataCoordWorkersRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkersRD1_RD2.csv"), row.names = FALSE)
+FullDataCoordWorkersRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordWorkersRD1_RD2.csv"))
 
 # Full workers dataset
-FullDataCoordBroodRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordBroodRD1_RD2.csv"), row.names = FALSE)
+FullDataCoordBroodRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordBroodRD1_RD2.csv"))
 
 # Full workers dataset
-FullDataCoordQueenRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordQueenRD1_RD2.csv"), row.names = FALSE)
+FullDataCoordQueenRD1_RD2 <- read.csv(here("analysis", "data", "processed", "FullDataCoordQueenRD1_RD2.csv"))
 
 # Full workers dataset
-FullDataCoordAlates <- read.csv(here("analysis", "data", "processed", "FullDataCoordAlates.csv"), row.names = FALSE)
+FullDataCoordAlates <- read.csv(here("analysis", "data", "processed", "FullDataCoordAlates.csv"))
 
 # DISTANCE TO NEST ENTRANCE (EMPIRICAL) REFERENCES
-DistBinsFull <- read.csv(here("analysis", "data", "RefData", "DistBinsFull.csv"), row.names = FALSE)
+DistBinsFull <- read.csv(here("analysis", "data", "RefData", "DistBinsFull.csv"))
 
 # NULL BINS REFERENCE (EMPIRICAL)
-BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv"), row.names = FALSE)
+BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv"))
 
 # BIN REFERENCE COORDINATES
-BinCoordFull <- read.csv(here("analysis", "data", "RefData", "BinCoordFull.csv"), row.names = FALSE)
+BinCoordFull <- read.csv(here("analysis", "data", "RefData", "BinCoordFull.csv"))
 
 # REFERENCE COORDINATES FOR CORNERS (EMPIRICAL)
-CornerFull <- read.csv(here("analysis", "data", "RefData", "CornerFull.csv"), row.names = FALSE)
+CornerFull <- read.csv(here("analysis", "data", "RefData", "CornerFull.csv"))
+
 ####################################################################################################################
 ## DISTANCE TO THE NEST ENTRANCE
 # The following scripts find each colony member's distance from the nest entrance 

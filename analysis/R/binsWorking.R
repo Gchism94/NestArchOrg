@@ -28,34 +28,34 @@ pacman::p_load(here,
 
 # WORKERS
 # High nest density
-FullDataCoordWorkers <- read.csv(here("analysis", "data", "RawData", "FullDataCoordWorkers.csv"), row.names = FALSE)
+FullDataCoordWorkers <- read.csv(here("analysis", "data", "RawData", "FullDataCoordWorkers.csv"))
 
 # Low nest density
-FullDataCoordWorkersRD2 <- read.csv(here("analysis", "data", "RawData", "FullDataCoordWorkersRD2.csv"), row.names = FALSE)
+FullDataCoordWorkersRD2 <- read.csv(here("analysis", "data", "RawData", "FullDataCoordWorkersRD2.csv"))
 
 # BROOD
 # High nest density
-FullDataCoordBrood <- read.csv(here("analysis", "data", "RawData", "FullDataCoordBrood.csv"), row.names = FALSE)
+FullDataCoordBrood <- read.csv(here("analysis", "data", "RawData", "FullDataCoordBrood.csv"))
 
 # Low nest density
-FullDataCoordBroodRD2 <- read.csv(here("analysis", "data", "RawData", "FullDataCoordBroodRD2.csv"), row.names = FALSE)
+FullDataCoordBroodRD2 <- read.csv(here("analysis", "data", "RawData", "FullDataCoordBroodRD2.csv"))
 
 # QUEENS
 # High nest density
-FullDataCoordQueen <- read.csv(here("analysis", "data", "RawData", "FullDataCoordQueen.csv"), row.names = FALSE)
+FullDataCoordQueen <- read.csv(here("analysis", "data", "RawData", "FullDataCoordQueen.csv"))
 
 # Low nest density
-FullDataCoordQueenRD2 <- read.csv(here("analysis", "data", "RawData", "FullDataCoordQueenRD2.csv"), row.names = FALSE)
+FullDataCoordQueenRD2 <- read.csv(here("analysis", "data", "RawData", "FullDataCoordQueenRD2.csv"))
 
 # ALATES
 # Low nest density
-FullDataCoordAlate <- read.csv(here("analysis", "data", "RawData", "FullDataCoordAlate.csv"), row.names = FALSE)
+FullDataCoordAlate <- read.csv(here("analysis", "data", "RawData", "FullDataCoordAlate.csv"))
 
 # NULL BINS REFERENC
-BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv"), row.names = FALSE)
+BinsNullFull <- read.csv(here("analysis", "data", "RefData", "BinsNullFull.csv"))
 
 # BIN REFERENCE COORDINATES
-BinCoordFull <- read.csv(here("analysis", "data", "RefData", "BinCoordFull.csv"), row.names = FALSE)
+BinCoordFull <- read.csv(here("analysis", "data", "RefData", "BinCoordFull.csv"))
 
 ####################################################################################################################
 # EMPIRICAL DATA PROCESSING 
